@@ -44,9 +44,10 @@ class ApiClient {
         const isAppEndpoint = url.includes('/app/');
         
         if (error.response?.status === 401 && typeof window !== 'undefined' && !isAppEndpoint) {
-          // Don't auto-redirect, just remove tokens
-          // Let the auth context handle the redirect
           console.warn('Unauthorized request to:', url);
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
         }
         return Promise.reject(error);
       }
