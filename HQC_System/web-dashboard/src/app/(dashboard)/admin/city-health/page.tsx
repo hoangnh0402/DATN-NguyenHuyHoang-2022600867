@@ -46,11 +46,7 @@ interface CityHealthData {
   last_updated: string;
 }
 
-interface AIInsight {
-  summary: string;
-  recommendations: string[];
-  risks: string[];
-}
+
 
 // Simulated ward-specific data generator
 const generateWardData = (wardName: string, baseData: CityHealthData): CityHealthData => {

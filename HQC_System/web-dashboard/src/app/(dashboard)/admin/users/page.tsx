@@ -66,7 +66,7 @@ export default function AdminUsersPage() {
     try {
       setLoading(true);
       const data = await adminService.getAllUsers();
-      setUsers(data);
+      setUsers(data as User[]);
     } catch (error: any) {
       toast.error(error.response?.data?.detail || 'Không thể tải danh sách người dùng');
     } finally {
