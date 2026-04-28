@@ -3,40 +3,22 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Bell, Shield, Palette, User, Mail, Phone, Building, Save, Camera, Key, Globe, Moon, Sun } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Bell, Shield, Palette, User, Mail, Phone, Building, Save, Camera, Key, Globe, Moon, Sun, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-interface UserProfile {
-  id: string;
-  email: string;
-  username: string;
-  full_name: string;
-  phone?: string;
-  role: string;
-  department?: string;
-  position?: string;
-  avatar_url?: string;
-  bio?: string;
-  created_at: string;
-}
+import { useAuth } from '@/components/providers/auth-provider';
+import { authService, UserProfile } from '@/lib/auth-service';
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'appearance'>('profile');
-  const [profile, setProfile] = useState<UserProfile>({
-    id: '1',
-    email: 'admin@hqcsystem.vn',
-    username: 'admin',
-    full_name: 'Quản trị viên HQC System',
-    phone: '0912345678',
-    role: 'admin',
-    department: 'Công nghệ thông tin',
-    position: 'Quản trị hệ thống',
-    bio: 'Quản trị viên hệ thống HQC System',
-    created_at: new Date().toISOString(),
-  });
+  const { user, logout, refreshUser } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const [editedProfile, setEditedProfile] = useState(profile);
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'appearance'>('profile');
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
+
   const [passwordForm, setPasswordForm] = useState({
     current_password: '',
     new_password: '',
@@ -58,23 +40,50 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    // Load user profile from localStorage or API
-    const savedProfile = localStorage.getItem('user_profile');
-    if (savedProfile) {
-      const parsed = JSON.parse(savedProfile);
-      setProfile(parsed);
-      setEditedProfile(parsed);
+    // Load user profile from useAuth
+    if (user) {
+      setProfile(user);
+      setEditedProfile(user);
     }
-  }, []);
+  }, [user]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate size (Max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Kích thước ảnh không được vượt quá 2MB');
+      return;
+    }
+
+    // Read file as Base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setEditedProfile({ ...editedProfile, avatar_url: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSaveProfile = async () => {
     try {
+      setIsSaving(true);
       // API call to update profile
-      localStorage.setItem('user_profile', JSON.stringify(editedProfile));
-      setProfile(editedProfile);
+      const updatedUser = await authService.updateProfile({
+        full_name: editedProfile.full_name,
+        phone: editedProfile.phone,
+        department: editedProfile.department,
+        position: editedProfile.position,
+        avatar_url: editedProfile.avatar_url,
+      });
+      
+      setProfile(updatedUser);
+      await refreshUser();
       toast.success('Đã cập nhật thông tin cá nhân');
-    } catch (error) {
-      toast.error('Không thể cập nhật thông tin');
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Không thể cập nhật thông tin');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -95,15 +104,18 @@ export default function SettingsPage() {
     }
 
     try {
-      // API call to change password
+      setIsChangingPassword(true);
+      await authService.changePassword(passwordForm.current_password, passwordForm.new_password);
       toast.success('Đã thay đổi mật khẩu');
       setPasswordForm({
         current_password: '',
         new_password: '',
         confirm_password: '',
       });
-    } catch (error) {
-      toast.error('Không thể thay đổi mật khẩu');
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Không thể thay đổi mật khẩu');
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -145,6 +157,14 @@ export default function SettingsPage() {
     { id: 'notifications' as const, label: 'Thông báo', icon: Bell },
     { id: 'appearance' as const, label: 'Giao diện', icon: Palette },
   ];
+
+  if (!profile) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -191,12 +211,27 @@ export default function SettingsPage() {
                 {/* Avatar */}
                 <div className="flex items-center gap-6 mb-6">
                   <div className="relative">
-                    <div className="h-24 w-24 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-3xl font-bold">
-                      {profile.full_name?.charAt(0).toUpperCase() || 'A'}
+                    <div className="h-24 w-24 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden border-2 border-border shadow-sm">
+                      {editedProfile.avatar_url ? (
+                        <img src={editedProfile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        profile.full_name?.charAt(0).toUpperCase() || 'A'
+                      )}
                     </div>
-                    <button className="absolute bottom-0 right-0 p-2 bg-green-600 text-white rounded-full hover:bg-green-700">
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute bottom-0 right-0 p-2 bg-green-600 text-white rounded-full hover:bg-green-700 shadow-md transition-transform hover:scale-105"
+                      title="Đổi ảnh đại diện"
+                    >
                       <Camera className="h-4 w-4" />
                     </button>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleAvatarChange}
+                      accept="image/png, image/jpeg, image/jpg"
+                      hidden 
+                    />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Avatar</p>
@@ -212,10 +247,11 @@ export default function SettingsPage() {
                     </label>
                     <input
                       type="email"
-                      value={editedProfile.email}
-                      onChange={(e) => setEditedProfile({ ...editedProfile, email: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground"
+                      value={editedProfile.email || ''}
+                      disabled
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-secondary text-muted-foreground cursor-not-allowed"
                     />
+                    <p className="text-xs text-muted-foreground mt-1">Email đăng nhập không thể thay đổi</p>
                   </div>
 
                   <div>
@@ -225,7 +261,7 @@ export default function SettingsPage() {
                     </label>
                     <input
                       type="text"
-                      value={editedProfile.username}
+                      value={editedProfile.email?.split('@')[0] || ''}
                       disabled
                       className="w-full px-4 py-2 rounded-lg border border-border bg-secondary text-muted-foreground cursor-not-allowed"
                     />
@@ -237,7 +273,7 @@ export default function SettingsPage() {
                     </label>
                     <input
                       type="text"
-                      value={editedProfile.full_name}
+                      value={editedProfile.full_name || ''}
                       onChange={(e) => setEditedProfile({ ...editedProfile, full_name: e.target.value })}
                       className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground"
                     />
@@ -282,25 +318,13 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Giới thiệu
-                  </label>
-                  <textarea
-                    value={editedProfile.bio || ''}
-                    onChange={(e) => setEditedProfile({ ...editedProfile, bio: e.target.value })}
-                    rows={3}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground"
-                    placeholder="Viết vài dòng giới thiệu về bạn..."
-                  />
-                </div>
-
                 <button
                   onClick={handleSaveProfile}
-                  className="mt-6 flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  disabled={isSaving}
+                  className="mt-6 flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
                 >
-                  <Save className="h-4 w-4" />
-                  Lưu thay đổi
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
                 </button>
               </div>
             </div>
@@ -355,10 +379,11 @@ export default function SettingsPage() {
 
                   <button
                     onClick={handleChangePassword}
-                    className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    disabled={isChangingPassword}
+                    className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-70 disabled:cursor-not-allowed transition-all w-max"
                   >
-                    <Key className="h-4 w-4" />
-                    Đổi mật khẩu
+                    {isChangingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Key className="h-4 w-4" />}
+                    {isChangingPassword ? 'Đang cập nhật...' : 'Đổi mật khẩu'}
                   </button>
                 </div>
 
@@ -370,8 +395,11 @@ export default function SettingsPage() {
                         <p className="font-medium text-foreground">MacBook Pro • Chrome</p>
                         <p className="text-sm text-muted-foreground">Hà Nội, Việt Nam • Đang hoạt động</p>
                       </div>
-                      <button className="text-sm text-red-600 hover:text-red-700">
-                        Đăng xuất
+                      <button 
+                        onClick={logout}
+                        className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                      >
+                        Đăng xuất thiết bị này
                       </button>
                     </div>
                   </div>

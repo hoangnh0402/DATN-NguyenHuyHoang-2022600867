@@ -152,7 +152,14 @@ function getCongestionLabel(level: string): string {
 // Main Dashboard Component
 // ============================================
 export default function DashboardPage() {
-  const [loading, setLoading] = useState(true);
+  const [loadingStates, setLoadingStates] = useState({
+    stats: true,
+    appReports: true,
+    weather: true,
+    aqi: true,
+    traffic: true,
+    geoStats: true
+  });
   const [refreshing, setRefreshing] = useState(false);
   const [apiStatus, setApiStatus] = useState<'online' | 'offline' | 'checking'>('checking');
   
@@ -165,49 +172,92 @@ export default function DashboardPage() {
 
   const fetchData = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+    else setLoadingStates({
+      stats: true,
+      appReports: true,
+      weather: true,
+      aqi: true,
+      traffic: true,
+      geoStats: true
+    });
     
-    try {
-      await healthApi.check();
-      setApiStatus('online');
-    } catch {
-      setApiStatus('offline');
-    }
+    const promises = [
+      // 1. Health check
+      healthApi.check()
+        .then(() => setApiStatus('online'))
+        .catch(() => setApiStatus('offline')),
 
-    // Fetch MongoDB Atlas reports stats using the stats endpoint
-    try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
-      const appReportsResponse = await fetch(`${apiBaseUrl}/app/reports/stats/summary`);
-      if (appReportsResponse.ok) {
-        const appReportsData = await appReportsResponse.json();
-        if (appReportsData.success && appReportsData.data) {
-          setAppReports({
-            total: appReportsData.data.total || 0,
-            pending: appReportsData.data.pending || 0,
-            processing: appReportsData.data.processing || 0,
-            resolved: appReportsData.data.resolved || 0,
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch app reports:', error);
-    }
+      // 2. App Reports
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1'}/app/reports/stats/summary`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            setAppReports({
+              total: data.data.total || 0,
+              pending: data.data.pending || 0,
+              processing: data.data.processing || 0,
+              resolved: data.data.resolved || 0,
+            });
+          }
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, appReports: false }));
+        })
+        .catch(err => {
+          console.error('Failed to fetch app reports:', err);
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, appReports: false }));
+        }),
 
-    const [statsResult, weatherResult, aqiResult, trafficResult, geoResult] = await Promise.allSettled([
-      reportApi.getStatistics(),
-      realtimeApi.getWeather(),
-      realtimeApi.getAirQuality(),
-      realtimeApi.getTrafficHotspots(),
+      // 3. Stats
+      reportApi.getStatistics()
+        .then(res => {
+          setStatistics(res);
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, stats: false }));
+        })
+        .catch(() => {
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, stats: false }));
+        }),
+
+      // 4. Weather
+      realtimeApi.getWeather()
+        .then(res => {
+          setWeather(res);
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, weather: false }));
+        })
+        .catch(() => {
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, weather: false }));
+        }),
+
+      // 5. AQI
+      realtimeApi.getAirQuality()
+        .then(res => {
+          setAirQuality(res);
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, aqi: false }));
+        })
+        .catch(() => {
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, aqi: false }));
+        }),
+
+      // 6. Traffic
+      realtimeApi.getTrafficHotspots()
+        .then(res => {
+          setTrafficHotspots(res.hotspots || []);
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, traffic: false }));
+        })
+        .catch(() => {
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, traffic: false }));
+        }),
+
+      // 7. Geo Stats
       geographicStatsApi.getStatistics()
-    ]);
+        .then(res => {
+          setGeoStats(res);
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, geoStats: false }));
+        })
+        .catch(() => {
+          if (!isRefresh) setLoadingStates(prev => ({ ...prev, geoStats: false }));
+        })
+    ];
 
-    if (statsResult.status === 'fulfilled') setStatistics(statsResult.value);
-    if (weatherResult.status === 'fulfilled') setWeather(weatherResult.value);
-    if (aqiResult.status === 'fulfilled') setAirQuality(aqiResult.value);
-    if (trafficResult.status === 'fulfilled') setTrafficHotspots(trafficResult.value.hotspots || []);
-    if (geoResult.status === 'fulfilled') setGeoStats(geoResult.value);
-
-    setLoading(false);
+    await Promise.allSettled(promises);
     setRefreshing(false);
   };
 
@@ -265,7 +315,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Tổng báo cáo</p>
-              <p className="text-xl font-bold text-foreground">{loading ? '...' : (statistics?.total || 0) + appReports.total}</p>
+              <p className="text-xl font-bold text-foreground">{(loadingStates.stats || loadingStates.appReports) ? '...' : (statistics?.total || 0) + appReports.total}</p>
               <p className="text-[10px] text-muted-foreground">Web: {statistics?.total || 0} • App: {appReports.total}</p>
             </div>
           </div>
@@ -278,7 +328,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Chờ xử lý</p>
-              <p className="text-xl font-bold text-foreground">{loading ? '...' : (statistics?.pending || 0) + appReports.pending}</p>
+              <p className="text-xl font-bold text-foreground">{(loadingStates.stats || loadingStates.appReports) ? '...' : (statistics?.pending || 0) + appReports.pending}</p>
               <p className="text-[10px] text-muted-foreground">Web: {statistics?.pending || 0} • App: {appReports.pending}</p>
             </div>
           </div>
@@ -291,7 +341,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Đang xử lý</p>
-              <p className="text-xl font-bold text-foreground">{loading ? '...' : (statistics?.in_progress || 0) + appReports.processing}</p>
+              <p className="text-xl font-bold text-foreground">{(loadingStates.stats || loadingStates.appReports) ? '...' : (statistics?.in_progress || 0) + appReports.processing}</p>
               <p className="text-[10px] text-muted-foreground">Web: {statistics?.in_progress || 0} • App: {appReports.processing}</p>
             </div>
           </div>
@@ -304,7 +354,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Đã giải quyết</p>
-              <p className="text-xl font-bold text-foreground">{loading ? '...' : (statistics?.resolved || 0) + appReports.resolved}</p>
+              <p className="text-xl font-bold text-foreground">{(loadingStates.stats || loadingStates.appReports) ? '...' : (statistics?.resolved || 0) + appReports.resolved}</p>
               <p className="text-[10px] text-muted-foreground">Web: {statistics?.resolved || 0} • App: {appReports.resolved}</p>
             </div>
           </div>
@@ -315,7 +365,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         
         {/* Weather Card */}
-        <OverviewCard title="Thời tiết Hà Nội" loading={loading}>
+        <OverviewCard title="Thời tiết Hà Nội" loading={loadingStates.weather}>
           {weather ? (
             <div className="space-y-1">
               <div className="flex items-center justify-between mb-4">
@@ -344,7 +394,7 @@ export default function DashboardPage() {
         </OverviewCard>
 
         {/* Air Quality Card */}
-        <OverviewCard title="Chất lượng không khí" loading={loading}>
+        <OverviewCard title="Chất lượng không khí" loading={loadingStates.aqi}>
           {airQuality ? (
             <div className="space-y-1">
               <div className="flex items-center justify-between mb-4">
@@ -384,7 +434,7 @@ export default function DashboardPage() {
         {/* Traffic Card */}
         <OverviewCard 
           title="Giao thông" 
-          loading={loading}
+          loading={loadingStates.traffic}
           headerAction={
             <Link href="/geographic" className="text-sm text-accent hover:text-accent/80">
               Xem bản đồ
@@ -421,7 +471,7 @@ export default function DashboardPage() {
         {/* Geographic Statistics Card */}
         <OverviewCard 
           title="Dữ liệu địa lý Hà Nội" 
-          loading={loading}
+          loading={loadingStates.geoStats}
           className="lg:col-span-2 xl:col-span-2"
           headerAction={
             <Link href="/geographic" className="text-sm text-accent hover:text-accent/80">

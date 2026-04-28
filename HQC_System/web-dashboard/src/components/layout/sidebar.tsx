@@ -74,11 +74,11 @@ export default function Sidebar() {
             {/* Logo - Compact and elegant */}
             <div className="relative flex-shrink-0">
               <Image
-                src="/HQC_SYSTEM.png"
+                src="/logo_v3.png"
                 alt="HQC System Logo"
                 width={64}
                 height={64}
-                className="w-14 h-14 object-contain rounded-lg"
+                className="w-14 h-14 object-contain rounded-lg bg-white p-1"
                 priority
               />
             </div>

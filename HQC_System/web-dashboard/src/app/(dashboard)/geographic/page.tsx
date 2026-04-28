@@ -472,7 +472,6 @@ export default function GeographicPage() {
   });
   
   // Refs
-  const mapRef = useRef<any>(null);
 
   // Client-side only
   useEffect(() => {
@@ -1121,7 +1120,6 @@ export default function GeographicPage() {
               zoom={mapZoom}
               style={{ height: '100%', width: '100%' }}
               scrollWheelZoom={true}
-              ref={mapRef}
             >
               {/* Map Controller for programmatic view changes */}
               <MapController 
