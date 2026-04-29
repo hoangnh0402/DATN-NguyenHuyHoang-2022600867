@@ -417,8 +417,9 @@ export default function SmartAlertsPage() {
         });
       }
       
-      setAiAlerts(aiGeneratedAlerts);
-      toast.success(`AI đã phân tích và tạo ${aiGeneratedAlerts.length} cảnh báo thông minh`, { id: 'ai-alert' });
+      const finalAiAlerts = [...mockAlerts, ...aiGeneratedAlerts];
+      setAlerts(prev => [...finalAiAlerts, ...prev]);
+      toast.success(`AI đã phân tích và tạo ${finalAiAlerts.length} cảnh báo thông minh`, { id: 'ai-alert' });
     } catch (error) {
       console.error('AI Alert generation error:', error);
       toast.error('Không thể tạo cảnh báo AI. Vui lòng thử lại.', { id: 'ai-alert' });

@@ -408,7 +408,7 @@ async def delete_user(
     db: AsyncIOMotorDatabase = Depends(get_mongodb),
     atlas_db: AsyncIOMotorDatabase = Depends(get_mongodb_atlas)
 ):
-    """Delete user (soft delete by setting status/is_active)"""
+    """Delete user permanently"""
     
     if not ObjectId.is_valid(user_id):
         raise HTTPException(
@@ -417,18 +417,12 @@ async def delete_user(
         )
     
     if source == 'dashboard':
-        result = await db.users.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$set": {"status": "suspended", "updated_at": datetime.utcnow()}}
-        )
-        if result.matched_count == 0:
+        result = await db.users.delete_one({"_id": ObjectId(user_id)})
+        if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
     else:
-        result = await atlas_db.user_profile.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$set": {"is_active": False, "updated_at": datetime.utcnow()}}
-        )
-        if result.matched_count == 0:
+        result = await atlas_db.user_profile.delete_one({"_id": ObjectId(user_id)})
+        if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
     
     return {"success": True, "message": "Đã xóa người dùng"}

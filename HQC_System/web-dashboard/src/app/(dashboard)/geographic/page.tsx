@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { 
   RefreshCw, PanelRightOpen, PanelRightClose,
