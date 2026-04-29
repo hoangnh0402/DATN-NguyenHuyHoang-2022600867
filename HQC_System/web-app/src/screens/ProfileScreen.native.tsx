@@ -93,7 +93,7 @@ const ProfileScreen: React.FC = () => {
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.avatarSection}>
-          <Avatar size={80} name={userName} />
+          <Avatar size={80} name={userName} uri={user?.avatar_url} />
           <Text style={styles.name}>{userName}</Text>
           <Text style={styles.email}>{userEmail}</Text>
         </View>

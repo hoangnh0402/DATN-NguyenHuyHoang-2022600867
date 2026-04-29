@@ -8,11 +8,22 @@ const nextConfig = {
     unoptimized: true,
   },
 
-  // Base path (if needed)
-  // basePath: '',
-  
   // Trailing slash for static hosting
   trailingSlash: true,
+
+  // Enable SWC minification for smaller bundles
+  swcMinify: true,
+
+  // Compiler optimizations
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+
+  // Optimize for modern browsers (reduce polyfills)
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
+  },
 
   // Environment variables
   env: {
@@ -27,3 +38,4 @@ const nextConfig = {
 };
 
 export default nextConfig;
+

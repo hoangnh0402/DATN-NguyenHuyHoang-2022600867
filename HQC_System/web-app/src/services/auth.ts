@@ -45,6 +45,7 @@ export interface User {
   reputation_score?: number;
   is_verified?: boolean;
   is_admin?: boolean;
+  avatar_url?: string;
   created_at?: string;
   last_login?: string;
 }
@@ -153,6 +154,39 @@ class AuthService {
     }
     
     throw new Error('Không thể lấy thông tin người dùng');
+  }
+
+  async updateProfile(userData: Partial<User>): Promise<User> {
+    const token = await this.getToken();
+    if (!token) {
+      throw new Error('Chưa đăng nhập');
+    }
+
+    const response = await fetch(`${API_BASE}/auth/me`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Không thể cập nhật thông tin' }));
+      throw new Error(error.error || error.detail || 'Không thể cập nhật thông tin');
+    }
+
+    const result = await response.json();
+    
+    if (result.success && result.data) {
+      const user = result.data;
+      if (user._id && !user.id) {
+        user.id = user._id;
+      }
+      return user;
+    }
+    
+    throw new Error('Không thể cập nhật thông tin');
   }
 
   async logout(): Promise<void> {

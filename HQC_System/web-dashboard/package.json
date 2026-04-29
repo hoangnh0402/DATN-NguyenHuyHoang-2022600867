@@ -22,7 +22,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "framer-motion": "^11.13.5",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "lucide-react": "^0.460.0",
@@ -32,7 +31,6 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.6.0",
-    "react-router-dom": "^7.10.1",
     "recharts": "^2.15.4",
     "tailwind-merge": "^2.5.5",
     "tailwindcss": "^3.4.15",
@@ -46,5 +44,11 @@
     "eslint-config-next": "^14.2.33",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9"
-  }
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ]
 }

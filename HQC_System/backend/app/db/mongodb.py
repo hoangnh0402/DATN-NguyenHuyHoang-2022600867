@@ -19,22 +19,26 @@ class MongoDB:
     @classmethod
     async def connect_db(cls):
         """Initialize MongoDB connection pool"""
-        if cls.client is None:
-            cls.client = AsyncIOMotorClient(
-                settings.MONGODB_URL,
-                maxPoolSize=10,
-                minPoolSize=2,
-                serverSelectionTimeoutMS=5000
-            )
-            cls.db = cls.client[settings.MONGODB_DB]
-            
-            # Create indexes for users collection
-            await cls.db.users.create_index("email", unique=True)
-            await cls.db.users.create_index("status")
-            await cls.db.users.create_index("role")
-            await cls.db.users.create_index("created_at")
-            
-            print(f"✅ Connected to MongoDB: {settings.MONGODB_URL}")
+        try:
+            if cls.client is None:
+                cls.client = AsyncIOMotorClient(
+                    settings.MONGODB_URL,
+                    maxPoolSize=10,
+                    minPoolSize=2,
+                    serverSelectionTimeoutMS=5000
+                )
+                cls.db = cls.client[settings.MONGODB_DB]
+                
+                # Create indexes for users collection
+                await cls.db.users.create_index("email", unique=True)
+                await cls.db.users.create_index("status")
+                await cls.db.users.create_index("role")
+                await cls.db.users.create_index("created_at")
+                
+                print(f"✅ Connected to MongoDB: {settings.MONGODB_URL}")
+        except Exception as e:
+            print(f"❌ FAILED to connect to MongoDB: {e}")
+            print("⚠️ Backend will continue running but DB operations will fail.")
     
     @classmethod
     async def close_db(cls):

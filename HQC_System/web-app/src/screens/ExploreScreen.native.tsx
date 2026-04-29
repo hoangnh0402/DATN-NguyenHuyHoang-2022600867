@@ -25,6 +25,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import Avatar from '../components/Avatar';
 import { authService, User } from '../services/auth';
+import { useAuth } from '../contexts/AuthContext';
 import { weatherService, RealtimeWeatherResponse, ForecastPoint } from '../services/weather';
 import reportsService, { Report } from '../services/reports';
 import { alertsService, AlertItem } from '../services/alerts';
@@ -162,8 +163,9 @@ const NEARBY_CARDS: NearbyCard[] = [
 
 const ExploreScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { user } = useAuth();
+  const userName = user?.full_name || user?.username || 'User';
   const [showAiButton] = useState(true);
-  const [userName, setUserName] = useState<string | undefined>(undefined);
   
   // AI Button drag and drop
   const aiButtonPan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
@@ -492,6 +494,7 @@ const ExploreScreen: React.FC = () => {
                 <Avatar
                   size={48}
                   name={userName}
+                  uri={user?.avatar_url}
                   onPress={() => navigation.navigate('Profile')}
                 />
               </View>

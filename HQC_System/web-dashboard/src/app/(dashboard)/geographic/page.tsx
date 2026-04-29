@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import '@/styles/leaflet-overrides.css';
 import { 
   RefreshCw, PanelRightOpen, PanelRightClose,
   Map as MapIcon, Satellite, Camera, AlertTriangle, MapPin, Clock

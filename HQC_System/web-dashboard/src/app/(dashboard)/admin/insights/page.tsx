@@ -5,22 +5,31 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { BarChart3, RefreshCw, Download, TrendingUp, Clock, MapPin, Grid3X3, AlertTriangle } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
 import { adminService } from '@/lib/admin-service';
 import { geminiService } from '@/lib/gemini-service';
 import { DataFilters, HANOI_WARDS, DISTRICTS } from '@/components/data-intelligence/DataFilters';
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+
+// Lazy-load chart components to reduce initial bundle size (~200KB recharts)
+const ChartLoadingFallback = () => (
+  <div className="w-full h-[350px] bg-muted/50 rounded-lg animate-pulse flex items-center justify-center">
+    <span className="text-muted-foreground text-sm">Đang tải biểu đồ...</span>
+  </div>
+);
+
+const CorrelationChart = dynamic(
+  () => import('@/components/data-intelligence/InsightCharts').then(mod => mod.CorrelationChart),
+  { ssr: false, loading: ChartLoadingFallback }
+);
+const WardComparisonChart = dynamic(
+  () => import('@/components/data-intelligence/InsightCharts').then(mod => mod.WardComparisonChart),
+  { ssr: false, loading: ChartLoadingFallback }
+);
+const TemporalChart = dynamic(
+  () => import('@/components/data-intelligence/InsightCharts').then(mod => mod.TemporalChart),
+  { ssr: false, loading: ChartLoadingFallback }
+);
 
 interface WardData {
   ward: string;
@@ -374,36 +383,7 @@ export default function DataInsightsPage() {
               Biểu đồ thể hiện mối quan hệ giữa nhiệt độ và chất lượng không khí. Khi nhiệt độ tăng, 
               các phản ứng quang hóa tạo ra O₃ và PM2.5 làm tăng AQI.
             </p>
-            <ResponsiveContainer width="100%" height={350}>
-              <LineChart data={correlationData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
-                <YAxis yAxisId="temp" orientation="left" tick={{ fontSize: 12 }} />
-                <YAxis yAxisId="aqi" orientation="right" tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                />
-                <Legend />
-                <Line 
-                  yAxisId="temp"
-                  type="monotone" 
-                  dataKey="temperature" 
-                  stroke="#16a34a" 
-                  strokeWidth={2}
-                  name="Nhiệt độ (°C)"
-                  dot={false}
-                />
-                <Line 
-                  yAxisId="aqi"
-                  type="monotone" 
-                  dataKey="aqi" 
-                  stroke="#2563eb" 
-                  strokeWidth={2}
-                  name="AQI"
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <CorrelationChart data={correlationData} />
           </div>
         )}
 
@@ -418,27 +398,7 @@ export default function DataInsightsPage() {
               Điểm số đánh giá trên thang 0-100. Điểm cao hơn cho thấy hiệu suất tốt hơn.
               {selectedWards.length === 0 && ' Chọn phường cụ thể ở bộ lọc để xem chi tiết.'}
             </p>
-            <ResponsiveContainer width="100%" height={Math.max(350, displayWardData.length * 35)}>
-              <BarChart data={displayWardData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
-                <YAxis 
-                  type="category" 
-                  dataKey="ward" 
-                  tick={{ fontSize: 11 }} 
-                  width={120}
-                  tickFormatter={(val) => val.replace('Phường ', 'P. ').replace('Xã ', 'X. ')}
-                />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                />
-                <Legend />
-                <Bar dataKey="aqi_score" fill="#16a34a" name="Môi trường" />
-                <Bar dataKey="traffic_score" fill="#f59e0b" name="Giao thông" />
-                <Bar dataKey="civic_score" fill="#2563eb" name="Dân sự" />
-                <Bar dataKey="parking_score" fill="#7c3aed" name="Bãi đỗ xe" />
-              </BarChart>
-            </ResponsiveContainer>
+            <WardComparisonChart data={displayWardData} />
           </div>
         )}
 
@@ -448,33 +408,7 @@ export default function DataInsightsPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Lưu lượng giao thông và tỷ lệ đỗ xe thay đổi theo giờ. Giờ cao điểm: 7-9h sáng và 17-19h chiều.
             </p>
-            <ResponsiveContainer width="100%" height={350}>
-              <LineChart data={temporalData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="traffic" 
-                  stroke="#dc2626" 
-                  strokeWidth={2}
-                  name="Giao thông (%)"
-                  dot={false}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="parking" 
-                  stroke="#7c3aed" 
-                  strokeWidth={2}
-                  name="Bãi đỗ xe (%)"
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <TemporalChart data={temporalData} />
           </div>
         )}
         

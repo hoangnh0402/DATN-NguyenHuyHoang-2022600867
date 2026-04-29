@@ -19,10 +19,12 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { authService, User } from '../services/auth';
+import { useAuth } from '../contexts/AuthContext';
 import Avatar from '../components/Avatar';
 
 const PersonalInfoScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { refreshUser } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -79,11 +81,18 @@ const PersonalInfoScreen: React.FC = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.8,
+        quality: 0.5,
+        base64: true,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        setAvatarUri(result.assets[0].uri);
+        const asset = result.assets[0];
+        if (asset.base64) {
+          const base64Avatar = `data:image/jpeg;base64,${asset.base64}`;
+          setAvatarUri(base64Avatar);
+        } else {
+          setAvatarUri(asset.uri);
+        }
       }
     } catch (error) {
       console.error('Error picking image:', error);
@@ -175,12 +184,17 @@ const PersonalInfoScreen: React.FC = () => {
       return;
     }
 
-    // TODO: Implement update user API call
     setSaving(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      Alert.alert('Thành công', 'Đã cập nhật thông tin cá nhân và ảnh đại diện.');
+      await authService.updateProfile({
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone,
+        avatar_url: avatarUri,
+      });
+      await refreshUser(); // Update global auth context
+      // Option to also update local state if needed
+      Alert.alert('Thành công', 'Đã cập nhật thông tin cá nhân.');
     } catch (error: any) {
       Alert.alert('Lỗi', error.message || 'Không thể cập nhật thông tin');
     } finally {

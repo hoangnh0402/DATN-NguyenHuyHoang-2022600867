@@ -24,59 +24,63 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Initialize as false/null to match server render (no hydration mismatch)
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isReady, setIsReady] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
+  // Read auth from localStorage after mount (client-only)
   useEffect(() => {
-    // Check authentication on mount
-    const checkAuth = async () => {
-      const isAuth = authService.isAuthenticated();
-      const storedUser = authService.getStoredUser();
+    const isAuth = authService.isAuthenticated();
+    const storedUser = authService.getStoredUser();
 
-      if (isAuth && storedUser) {
-        setIsAuthenticated(true);
-        setUser(storedUser);
-        
-        // Optionally refresh user profile from server
-        try {
-          const freshUser = await authService.getProfile();
-          setUser(freshUser);
-        } catch (error) {
-          console.error('Failed to refresh user profile:', error);
-          // Keep using stored user if refresh fails
-        }
-      }
+    if (isAuth && storedUser) {
+      setIsAuthenticated(true);
+      setUser(storedUser);
+    }
 
-      setIsLoading(false);
-    };
-
-    checkAuth();
+    setIsReady(true);
   }, []);
 
+  // Defer profile refresh to avoid blocking render
   useEffect(() => {
-    // Redirect logic
-    if (isLoading) return;
+    if (!isAuthenticated) return;
+
+    const publicPaths = ["/login", "/signup", "/"];
+    if (publicPaths.includes(pathname)) return;
+
+    const refreshProfile = () => {
+      authService.getProfile()
+        .then(freshUser => setUser(freshUser))
+        .catch(error => console.error('Failed to refresh user profile:', error));
+    };
+
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(refreshProfile);
+    } else {
+      setTimeout(refreshProfile, 200);
+    }
+  }, [isAuthenticated, pathname]);
+
+  // Redirect logic - only run after auth state is read
+  useEffect(() => {
+    if (!isReady) return;
 
     const publicPaths = ["/login", "/signup", "/"];
     const isPublicPath = publicPaths.includes(pathname);
 
-    // If not authenticated and trying to access protected route
     if (!isAuthenticated && !isPublicPath) {
       router.push("/login");
       return;
     }
 
-    // If authenticated and on login/signup page, redirect to dashboard
     if (isAuthenticated && (pathname === "/login" || pathname === "/signup")) {
       router.push("/dashboard");
       return;
     }
-
-    // Home page is handled by its own useEffect
-  }, [isAuthenticated, pathname, router, isLoading]);
+  }, [isAuthenticated, pathname, router, isReady]);
 
   const login = () => {
     // This is called after successful API login
@@ -107,17 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Đang tải...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // No loading spinner - children render immediately
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, login, logout, refreshUser }}>
       {children}
@@ -126,3 +120,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+

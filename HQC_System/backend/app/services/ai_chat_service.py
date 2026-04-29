@@ -185,8 +185,14 @@ class AIChatService:
             if not response:
                 raise Exception(f"All models failed. Tried: {models_to_try}. Errors: {model_errors}")
             
+            try:
+                response_text = response.text
+            except ValueError as ve:
+                logger.warning(f"Response text blocked or empty: {ve}")
+                response_text = "Câu hỏi vượt ngoài phạm vi cho phép"
+            
             return {
-                "response": self._sanitize_response(response.text),
+                "response": self._sanitize_response(response_text),
                 "sources": sources,
                 "timestamp": datetime.utcnow(),
                 "metadata": {
@@ -201,8 +207,11 @@ class AIChatService:
             error_trace = traceback.format_exc()
             logger.error(f"Error generating AI response: {e}")
             logger.error(f"Traceback: {error_trace}")
+            
+            # If models failed (e.g. rate limit, 503, 404) or any other generic error,
+            # return a friendly connection error message.
             return {
-                "response": self._sanitize_response(f"Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi của bạn: {str(e)}. Vui lòng thử lại sau."),
+                "response": "Xin lỗi, hệ thống AI đang quá tải hoặc có lỗi kết nối. Vui lòng thử lại sau.",
                 "sources": sources,
                 "timestamp": datetime.utcnow(),
                 "metadata": {
