@@ -89,11 +89,11 @@ export default function LoginPage() {
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <Image
-                src="/HQC_SYSTEM.png"
+                src="/logo_new.png"
                 alt="HQC System Logo"
-                width={120}
+                width={300}
                 height={120}
-                className="h-24 w-auto"
+                className="w-auto h-24 object-contain"
                 priority
               />
             </div>

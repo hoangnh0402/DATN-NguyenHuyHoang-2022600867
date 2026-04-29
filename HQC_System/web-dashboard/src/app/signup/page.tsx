@@ -101,11 +101,11 @@ export default function SignupPage() {
         <div className="max-w-md space-y-8">
           <div className="flex justify-center mb-8">
             <Image
-              src="/HQC_SYSTEM.png"
+              src="/logo_new.png"
               alt="HQC System Logo"
-              width={150}
+              width={300}
               height={150}
-              className="h-32 w-auto"
+              className="w-auto h-32 object-contain"
               priority
             />
           </div>
@@ -170,14 +170,14 @@ export default function SignupPage() {
         <div className="w-full max-w-md space-y-8">
           {/* Logo for mobile */}
           <div className="lg:hidden flex justify-center mb-8">
-            <Image
-              src="/HQC_SYSTEM.png"
-              alt="HQC System Logo"
-              width={120}
-              height={120}
-              className="h-24 w-auto"
-              priority
-            />
+              <Image
+                src="/logo_new.png"
+                alt="HQC System Logo"
+                width={300}
+                height={120}
+                className="w-auto h-24 object-contain"
+                priority
+              />
           </div>
 
           {/* Registration Form */}

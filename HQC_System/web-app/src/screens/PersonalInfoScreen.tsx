@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import { authService, User } from '../services/auth';
 import Avatar from '../components/Avatar';
 
@@ -25,6 +26,7 @@ const PersonalInfoScreen: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [avatarUri, setAvatarUri] = useState<string | undefined>(undefined);
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -49,6 +51,8 @@ const PersonalInfoScreen: React.FC = () => {
     try {
       const userData = await authService.getCurrentUser();
       setUser(userData);
+      // Giả sử có avatar_url trong tương lai, nhưng hiện tại fallback sang undefined
+      setAvatarUri((userData as any).avatar_url || undefined);
       setFormData({
         full_name: userData.full_name || '',
         email: userData.email || '',
@@ -59,6 +63,31 @@ const PersonalInfoScreen: React.FC = () => {
       navigation.goBack();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePickAvatar = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert('Cấp quyền', 'Bạn cần cấp quyền truy cập thư viện ảnh để đổi ảnh đại diện.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setAvatarUri(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Lỗi', 'Không thể tải ảnh. Vui lòng thử lại sau.');
     }
   };
 
@@ -151,7 +180,7 @@ const PersonalInfoScreen: React.FC = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      Alert.alert('Thành công', 'Đã cập nhật thông tin cá nhân');
+      Alert.alert('Thành công', 'Đã cập nhật thông tin cá nhân và ảnh đại diện.');
     } catch (error: any) {
       Alert.alert('Lỗi', error.message || 'Không thể cập nhật thông tin');
     } finally {
@@ -186,8 +215,13 @@ const PersonalInfoScreen: React.FC = () => {
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.avatarSection}>
-          <Avatar size={80} />
-          <TouchableOpacity style={styles.changeAvatarButton}>
+          <Avatar 
+            size={80} 
+            uri={avatarUri} 
+            name={formData.full_name || user?.username} 
+            onPress={handlePickAvatar}
+          />
+          <TouchableOpacity style={styles.changeAvatarButton} onPress={handlePickAvatar}>
             <Text style={styles.changeAvatarText}>Đổi ảnh đại diện</Text>
           </TouchableOpacity>
         </View>
