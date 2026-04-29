@@ -637,15 +637,23 @@ const ExploreScreen: React.FC = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.filterButton}
+              style={[
+                styles.filterButton,
+                selectedFilter === 'traffic' && styles.filterButtonActive,
+              ]}
               onPress={() => handleFilterPress('traffic')}
             >
               <MaterialIcons
                 name="traffic"
                 size={20}
-                color="#20A957"
+                color={selectedFilter === 'traffic' ? '#FFFFFF' : '#20A957'}
               />
-              <Text style={styles.filterText}>
+              <Text
+                style={[
+                  styles.filterText,
+                  selectedFilter === 'traffic' && styles.filterTextActive,
+                ]}
+              >
                 Giao thông
               </Text>
             </TouchableOpacity>
