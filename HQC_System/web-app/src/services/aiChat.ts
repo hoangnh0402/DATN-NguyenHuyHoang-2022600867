@@ -152,6 +152,41 @@ class AIChatService {
   }
 
   /**
+   * Xóa toàn bộ lịch sử chat của người dùng
+   */
+  async deleteHistory(
+    { userId }: { userId?: string },
+    token?: string
+  ): Promise<ApiResponse<{ deleted_count: number; message: string }>> {
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const params = new URLSearchParams();
+      if (userId) params.set('user_id', userId);
+
+      const url = `${this.baseUrl}/history?${params.toString()}`;
+      console.log('AI Chat Delete History API:', url);
+
+      const response = await fetch(url, { method: 'DELETE', headers });
+      console.log('AI Chat Delete History status:', response.status, response.statusText);
+
+      const result = await response.json();
+      if (!response.ok || result.success === false) {
+        throw new Error(result.detail || result.error || 'Failed to delete history');
+      }
+
+      return { success: true, data: result };
+    } catch (error: any) {
+      console.error('Error deleting AI chat history:', error);
+      return { success: false, error: error.message || 'Failed to delete history' };
+    }
+  }
+
+  /**
    * Kiểm tra trạng thái của AI chat service
    */
   async checkHealth(): Promise<ApiResponse<any>> {

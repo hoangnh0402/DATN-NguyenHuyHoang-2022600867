@@ -217,10 +217,6 @@ const ExploreScreen: React.FC = () => {
   const [hasLoadedCommunity, setHasLoadedCommunity] = useState(false);
 
   useEffect(() => {
-    loadUserInfo();
-  }, []);
-
-  useEffect(() => {
     loadWeatherData();
     loadCommunityReports();
   }, [userLocation.lat, userLocation.lon]);
@@ -332,15 +328,6 @@ const ExploreScreen: React.FC = () => {
     }
   }, [locationId]);
 
-  const loadUserInfo = async () => {
-    try {
-      const userData = await authService.getCurrentUser();
-      setUserName(userData.full_name || userData.username || 'User');
-    } catch (error) {
-      // Nếu chưa đăng nhập, dùng giá trị mặc định
-      setUserName('User');
-    }
-  };
 
   const loadWeatherData = async () => {
     if (!userLocation) return;

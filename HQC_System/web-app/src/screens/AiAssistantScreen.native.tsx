@@ -21,6 +21,7 @@ import { useNavigation } from '@react-navigation/native';
 import { aiChatService, ChatMessage as AIChatMessage, ChatHistoryItem } from '../services/aiChat';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/auth';
+import * as Location from 'expo-location';
 
 // Ngã Tư Sở - Quận Thanh Xuân, Hà Nội
 const DEFAULT_LOCATION = {
@@ -46,8 +47,30 @@ const AiAssistantScreen: React.FC = () => {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [userLocation] = useState<{ latitude: number; longitude: number }>(DEFAULT_LOCATION);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number }>(DEFAULT_LOCATION);
   const [loadingHistory, setLoadingHistory] = useState(false);
+
+  // Fetch current location
+  useEffect(() => {
+    (async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn('Permission to access location was denied');
+          return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+        console.log('[AI Assistant] Location updated:', location.coords.latitude, location.coords.longitude);
+      } catch (error) {
+        console.warn('[AI Assistant] Error getting location:', error);
+      }
+    })();
+  }, []);
   const navigation = useNavigation<any>();
   const { user, isAuthenticated } = useAuth();
   const recognitionRef = useRef<any | null>(null);
@@ -58,6 +81,69 @@ const AiAssistantScreen: React.FC = () => {
       stopVoiceInput();
     };
   }, []);
+
+  const doDeleteHistory = async () => {
+    try {
+      let token: string | undefined;
+      if (isAuthenticated) {
+        try {
+          const storedToken = await authService.getToken();
+          token = storedToken || undefined;
+        } catch {}
+      }
+      const userId = user?.id || user?._id;
+      const res = await aiChatService.deleteHistory({ userId }, token);
+      if (res.success) {
+        setMessages([]);
+        if (Platform.OS === 'web') {
+          window.alert('Đã xóa toàn bộ lịch sử chat.');
+        } else {
+          Alert.alert('Thành công', 'Đã xóa toàn bộ lịch sử chat.');
+        }
+      } else {
+        const errMsg = res.error || 'Không thể xóa lịch sử chat.';
+        if (Platform.OS === 'web') {
+          window.alert(errMsg);
+        } else {
+          Alert.alert('Lỗi', errMsg);
+        }
+      }
+    } catch (err: any) {
+      const errMsg = 'Đã xảy ra lỗi khi xóa lịch sử chat.';
+      if (Platform.OS === 'web') {
+        window.alert(errMsg);
+      } else {
+        Alert.alert('Lỗi', errMsg);
+      }
+    }
+  };
+
+  const handleDeleteHistory = () => {
+    if (messages.length === 0) {
+      if (Platform.OS === 'web') {
+        window.alert('Không có lịch sử chat để xóa.');
+      } else {
+        Alert.alert('Thông báo', 'Không có lịch sử chat để xóa.');
+      }
+      return;
+    }
+
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử chat?');
+      if (confirmed) {
+        doDeleteHistory();
+      }
+    } else {
+      Alert.alert(
+        'Xóa lịch sử chat',
+        'Bạn có chắc chắn muốn xóa toàn bộ lịch sử chat?',
+        [
+          { text: 'Hủy', style: 'cancel' },
+          { text: 'Xóa', style: 'destructive', onPress: doDeleteHistory },
+        ]
+      );
+    }
+  };
 
   // Fetch chat history when screen mounts
   useEffect(() => {
@@ -284,6 +370,12 @@ const AiAssistantScreen: React.FC = () => {
             <MaterialIcons name="arrow-back" size={24} color="#20A957" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Chat với AI HQC System</Text>
+          <TouchableOpacity
+            onPress={handleDeleteHistory}
+            style={styles.deleteButton}
+          >
+            <MaterialIcons name="delete-outline" size={24} color="#EF4444" />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.chatContainer}>
@@ -404,6 +496,11 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     left: 16,
+    padding: 8,
+  },
+  deleteButton: {
+    position: 'absolute',
+    right: 16,
     padding: 8,
   },
   headerTitle: {

@@ -177,6 +177,50 @@ async def get_chat_history(
         )
 
 
+@router.delete("/history")
+async def delete_chat_history(
+    user_id: Optional[str] = Query(None),
+    authorization: Optional[str] = Header(None),
+    mongodb: AsyncIOMotorDatabase = Depends(get_mongodb_atlas),
+):
+    """
+    Xóa toàn bộ lịch sử chat AI của người dùng (MongoDB Atlas)
+    - Yêu cầu xác định user_id (từ query hoặc token Bearer)
+    """
+    # Resolve user_id from token if not provided
+    if not user_id and authorization:
+        try:
+            token = authorization.replace("Bearer ", "")
+            auth_service = AppAuthService(mongodb)
+            payload = auth_service.decode_token(token)
+            user_id = payload.get("userId")
+        except Exception:
+            pass
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Thiếu user_id hoặc token để xóa lịch sử chat",
+        )
+
+    try:
+        collection = mongodb.get_collection("ai_chat_history")
+        result = await collection.delete_many({"userId": user_id})
+        return {
+            "success": True,
+            "deleted_count": result.deleted_count,
+            "message": f"Đã xóa {result.deleted_count} tin nhắn",
+        }
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error deleting chat history: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Không thể xóa lịch sử chat",
+        )
+
+
 @router.get("/health")
 async def ai_chat_health():
     """

@@ -147,77 +147,91 @@ class AIChatService:
         user_prompt = self._build_user_prompt(message, context_data, conversation_history, user_location)
         
         try:
+            import time
             # Generate response using new API
             full_prompt = f"{system_prompt}\n\n{user_prompt}"
             logger.info(f"Generating AI response for message: {message[:50]}...")
             
-            # Try models in order of preference
             model_names = [
-                'gemini-2.5-flash',      # Gemini 2.5 Flash (recommended)
-                'gemini-2.5-pro',        # Gemini 2.5 Pro
-                'gemini-1.5-flash',      # Fallback to 1.5
-                'gemini-1.5-pro',
+                'gemini-2.0-flash',      # Modern and fast
+                'gemini-flash-latest',   # Stable fallback
             ]
             
             # Start with configured model, then try others if it fails
             models_to_try = [self.model_name] + [m for m in model_names if m != self.model_name]
+            # Filter out any non-existent models we might have set as default
+            models_to_try = [m for m in models_to_try if m in ['gemini-2.0-flash', 'gemini-flash-latest', 'gemini-pro-latest', 'gemini-1.5-flash-latest']]
+            
+            # If no valid models, use the list
+            if not models_to_try:
+                models_to_try = model_names
+                
             response = None
             used_model = None
             model_errors: List[str] = []
             
-            for model_name in models_to_try:
-                try:
-                    response = self.client.models.generate_content(
-                        model=model_name,
-                        contents=full_prompt
-                    )
-                    used_model = model_name
-                    # Update model_name for future calls if this one works
-                    if model_name != self.model_name:
-                        self.model_name = model_name
-                        logger.info(f"Switched to model: {model_name}")
+            # Retry up to 3 times with delays for 503 errors
+            MAX_RETRIES = 2 # Reduced for faster fallback
+            for model_attempt in models_to_try:
+                for attempt in range(MAX_RETRIES):
+                    try:
+                        logger.info(f"Attempting model {model_attempt} (attempt {attempt+1})")
+                        # Use generate_content with corrected model name
+                        response = self.client.models.generate_content(
+                            model=model_attempt,
+                            contents=full_prompt
+                        )
+                        used_model = model_attempt
+                        break # Success!
+                    except Exception as e:
+                        err_str = str(e)
+                        model_errors.append(f"{model_attempt}: {err_str}")
+                        
+                        # Handle specific errors
+                        if "503" in err_str:
+                            logger.warning(f"503 Service Unavailable for {model_attempt}. Retrying...")
+                            time.sleep(2 * (attempt + 1)) # Backoff
+                            continue
+                        elif "429" in err_str:
+                            logger.warning(f"429 Rate Limit for {model_attempt}. Trying next model...")
+                            break # Move to next model immediately
+                        else:
+                            logger.error(f"Error calling model {model_attempt}: {e}")
+                            break # Move to next model
+                
+                if response:
                     break
-                except Exception as model_error:
-                    logger.warning(f"Model {model_name} failed: {model_error}")
-                    model_errors.append(f"{model_name}: {model_error}")
-                    continue
             
             if not response:
-                raise Exception(f"All models failed. Tried: {models_to_try}. Errors: {model_errors}")
-            
-            try:
-                response_text = response.text
-            except ValueError as ve:
-                logger.warning(f"Response text blocked or empty: {ve}")
-                response_text = "Câu hỏi vượt ngoài phạm vi cho phép"
-            
+                raise Exception(f"All models failed after retries. Errors: {model_errors}")
+
+            # Return response
             return {
-                "response": self._sanitize_response(response_text),
+                "response": self._sanitize_response(response.text),
                 "sources": sources,
                 "timestamp": datetime.utcnow(),
                 "metadata": {
-                    "intent": intent,
-                    "has_location": user_location is not None,
-                    "model": used_model,
-                    "model_errors": model_errors
+                    "model": used_model
                 }
             }
+            
         except Exception as e:
             import traceback
             error_trace = traceback.format_exc()
             logger.error(f"Error generating AI response: {e}")
             logger.error(f"Traceback: {error_trace}")
             
-            # If models failed (e.g. rate limit, 503, 404) or any other generic error,
-            # return a friendly connection error message.
+            # Check if failure was due to quota
+            is_quota_error = any("429" in str(err) or "RESOURCE_EXHAUSTED" in str(err) for err in model_errors) if 'model_errors' in locals() else False
+            
             return {
-                "response": "Xin lỗi, hệ thống AI đang quá tải hoặc có lỗi kết nối. Vui lòng thử lại sau.",
+                "response": "Xin lỗi, tài khoản AI đã hết hạn mức (Quota Exceeded). Vui lòng thử lại sau hoặc nâng cấp gói API." if is_quota_error else "Xin lỗi, hệ thống AI đang quá tải hoặc có lỗi kết nối. Vui lòng thử lại sau.",
                 "sources": sources,
                 "timestamp": datetime.utcnow(),
                 "metadata": {
                     "error": str(e),
-                    "error_type": type(e).__name__,
-                    "model_errors": model_errors if 'model_errors' in locals() else None
+                    "is_quota_error": is_quota_error,
+                    "model_errors": model_errors if 'model_errors' in locals() else []
                 }
             }
     
