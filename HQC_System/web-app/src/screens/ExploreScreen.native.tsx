@@ -203,10 +203,11 @@ const ExploreScreen: React.FC = () => {
   const [weatherData, setWeatherData] = useState<RealtimeWeatherResponse | null>(null);
   const [forecastData, setForecastData] = useState<ForecastPoint[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userLocation] = useState<{ lat: number; lon: number }>({
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number }>({
     lat: DEFAULT_LOCATION.lat,
     lon: DEFAULT_LOCATION.lon,
   });
+  const [locationName, setLocationName] = useState(DEFAULT_LOCATION_NAME);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<NearbyCard | null>(null);
   const [communityReports, setCommunityReports] = useState<NearbyCard[]>([]);
@@ -215,8 +216,74 @@ const ExploreScreen: React.FC = () => {
 
   useEffect(() => {
     loadUserInfo();
+  }, []);
+
+  useEffect(() => {
     loadWeatherData();
     loadCommunityReports();
+  }, [userLocation.lat, userLocation.lon]);
+
+  useEffect(() => {
+    const initLocation = async () => {
+      try {
+        console.log('[ExploreScreen] Requesting location permissions...');
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        console.log('[ExploreScreen] Permission status:', status);
+        
+        if (status === 'granted') {
+          console.log('[ExploreScreen] Fetching current position...');
+          const location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+          console.log('[ExploreScreen] Got position:', location.coords);
+          
+          setUserLocation({
+            lat: location.coords.latitude,
+            lon: location.coords.longitude,
+          });
+          
+          // Mặc định set tạm là Vị trí hiện tại để người dùng thấy nó đã đổi
+          setLocationName('Vị trí hiện tại (GPS)');
+          
+          try {
+            if (Platform.OS !== 'web') {
+              const geocode = await Location.reverseGeocodeAsync({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+              });
+              
+              if (geocode && geocode.length > 0) {
+                const place = geocode[0];
+                const nameParts = [
+                  place.street || place.name, 
+                  place.district || place.subregion, 
+                  place.city || place.region
+                ];
+                const name = nameParts.filter(Boolean).join(', ');
+                console.log('[ExploreScreen] Reverse geocoded name:', name);
+                if (name) setLocationName(name);
+              }
+            } else {
+              // Dùng OpenStreetMap Nominatim làm fallback cho Web
+              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.coords.latitude}&lon=${location.coords.longitude}&zoom=14&addressdetails=1`);
+              const data = await res.json();
+              if (data && data.address) {
+                const addr = data.address;
+                const name = [addr.road || addr.suburb, addr.city_district || addr.county, addr.city || addr.state].filter(Boolean).join(', ');
+                if (name) setLocationName(name);
+              }
+            }
+          } catch (geoErr) {
+            console.warn('[ExploreScreen] Reverse geocode failed:', geoErr);
+          }
+        } else {
+          console.log('[ExploreScreen] Permission denied or not granted.');
+        }
+      } catch (err) {
+        console.warn('[ExploreScreen] Error fetching location:', err);
+      }
+    };
+    initLocation();
   }, []);
 
   // Poll alerts every 90s; if new -> show banner
@@ -418,7 +485,7 @@ const ExploreScreen: React.FC = () => {
                 <View style={styles.headerTitleRow}>
                   <Text style={styles.headerTitle}>Explore HQC System</Text>
                 </View>
-                <Text style={styles.headerLocation}>{DEFAULT_LOCATION_NAME}</Text>
+                <Text style={styles.headerLocation}>{locationName}</Text>
               </View>
 
               <View style={styles.headerAvatarWrapper}>
