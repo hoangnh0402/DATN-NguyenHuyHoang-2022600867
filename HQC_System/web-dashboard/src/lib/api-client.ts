@@ -3,7 +3,8 @@
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+// Force backend URL to prevent Next.js from intercepting requests
+const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 class ApiClient {
   private client: AxiosInstance;

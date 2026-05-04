@@ -143,7 +143,7 @@ class GeminiService {
    */
   async analyzeSmartAlerts(metrics: any): Promise<any[]> {
     try {
-      const response = await fetch('/api/analyze', {
+      const response = await fetch('/api/analyze/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'generate_alerts', data: metrics })

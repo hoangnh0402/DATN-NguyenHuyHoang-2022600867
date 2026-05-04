@@ -73,8 +73,8 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
         if request.method == "GET":
             path = request.url.path
             
-            # Cache reports list for 2 minutes
-            if "/app/reports" in path or "/app/alerts" in path:
+            # Cache reports list for 2 minutes (Reports are static enough)
+            if "/app/reports" in path:
                 response.headers["Cache-Control"] = "public, max-age=120"
                 response.headers["Vary"] = "Accept-Encoding"
             

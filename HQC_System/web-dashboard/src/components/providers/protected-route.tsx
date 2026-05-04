@@ -3,28 +3,32 @@
 
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/auth-service';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    // Small delay to ensure localStorage is read
     const isAuth = authService.isAuthenticated();
     
     if (!isAuth) {
       router.push('/login');
+    } else {
+      setIsReady(true);
     }
   }, [router]);
 
-  // Check auth immediately
-  if (!authService.isAuthenticated()) {
+  // While checking auth, show loading state
+  if (!isReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang xác thực...</p>
+          <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground animate-pulse">Đang xác thực hệ thống...</p>
         </div>
       </div>
     );

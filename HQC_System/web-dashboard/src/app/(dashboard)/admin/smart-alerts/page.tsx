@@ -32,39 +32,36 @@ const getRandomWard = (): string => {
   return HANOI_WARDS[Math.floor(Math.random() * HANOI_WARDS.length)];
 };
 
-// Sample historical alerts for demo
+// Static historical alerts for stability
 const generateHistoricalAlerts = (): Alert[] => {
-  const types: ('environment' | 'traffic' | 'civic' | 'parking')[] = ['environment', 'traffic', 'civic', 'parking'];
-  const severities: Alert['severity'][] = ['critical', 'warning', 'info'];
-  const titles: Record<'environment' | 'traffic' | 'civic' | 'parking', string[]> = {
-    environment: ['Chất lượng không khí kém', 'Nhiệt độ cao', 'Độ ẩm thấp'],
-    traffic: ['Ùn tắc giao thông', 'Tai nạn giao thông', 'Đường ngập'],
-    civic: ['Sự cố hạ tầng', 'Rác thải chưa thu gom', 'Đèn đường hỏng'],
-    parking: ['Bãi đỗ đầy', 'Xe đỗ sai quy định', 'Hệ thống thanh toán lỗi'],
-  };
-
-  const history: Alert[] = [];
-  for (let i = 0; i < 15; i++) {
-    const type = types[Math.floor(Math.random() * types.length)];
-    const ward = getRandomWard();
-    const daysAgo = Math.floor(Math.random() * 30);
-    const hoursAgo = Math.floor(Math.random() * 24);
-    
-    history.push({
-      id: `history-${i}`,
-      type,
-      severity: severities[Math.floor(Math.random() * severities.length)],
-      title: titles[type][Math.floor(Math.random() * titles[type].length)],
-      description: `Cảnh báo tự động từ hệ thống giám sát.`,
-      location: ward.replace('Phường ', 'P. '),
-      ward,
-      timestamp: new Date(Date.now() - daysAgo * 86400000 - hoursAgo * 3600000).toISOString(),
+  return [
+    {
+      id: 'history-1',
+      type: 'environment',
+      severity: 'critical',
+      title: 'Ô nhiễm không khí nghiêm trọng',
+      description: 'Chỉ số AQI vượt ngưỡng 200 tại khu vực Ba Đình.',
+      location: 'P. Quán Thánh',
+      ward: 'Phường Quán Thánh',
+      timestamp: new Date(Date.now() - 86400000).toISOString(),
       status: 'resolved',
-      recommendation: 'Đã xử lý thành công.',
-      impact: 'Đã khắc phục.',
-    });
-  }
-  return history.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      recommendation: 'Đã phát khẩu trang miễn phí và phun nước dập bụi.',
+      impact: 'Đã cải thiện chỉ số sau 24h.',
+    },
+    {
+      id: 'history-2',
+      type: 'traffic',
+      severity: 'warning',
+      title: 'Ùn tắc tại nút giao Cầu Giấy',
+      description: 'Sự cố xe hỏng gây tắc nghẽn cục bộ.',
+      location: 'P. Mai Dịch',
+      ward: 'Phường Mai Dịch',
+      timestamp: new Date(Date.now() - 172800000).toISOString(),
+      status: 'resolved',
+      recommendation: 'Điều động xe cứu hộ xử lý trong 30 phút.',
+      impact: 'Giao thông trở lại bình thường.',
+    }
+  ];
 };
 
 export default function SmartAlertsPage() {
@@ -107,138 +104,103 @@ export default function SmartAlertsPage() {
       if (showToast) setRefreshing(true);
       setError(null);
       
-      const metrics = await adminService.getRealTimeMetrics();
-      const overview = await adminService.getDashboardOverview();
+      // Use trailing slashes and a timestamp to bypass any potential browser/proxy caching
+      const [metrics, overview, dbResponse] = await Promise.all([
+        adminService.getRealTimeMetrics().catch(() => null),
+        adminService.getDashboardOverview().catch(() => null),
+        apiClient.get<any>(`/app/alerts/?_t=${Date.now()}`).catch(() => ({ success: false, data: [] }))
+      ]);
       
-      const newAlerts: Alert[] = [];
+      if (!metrics || !overview) {
+        throw new Error('Hệ thống dữ liệu đang bận. Vui lòng thử lại sau.');
+      }
       
-      // Phân tích AQI - với vị trí cụ thể
+      const sensorAlerts: Alert[] = [];
+      
+      // Static IDs for sensor alerts to prevent flickering and React reconciliation issues
       const aqi = metrics.air_quality?.latest?.aqi || 0;
       if (aqi > thresholds.aqi_warning) {
-        const ward = getRandomWard();
-        newAlerts.push({
-          id: 'aqi-high',
+        sensorAlerts.push({
+          id: 'sensor-aqi-realtime',
           type: 'environment',
           severity: aqi > thresholds.aqi_critical ? 'critical' : 'warning',
-          title: 'Chất lượng không khí kém',
-          description: `Chỉ số AQI đạt ${aqi}, vượt ngưỡng an toàn (>${thresholds.aqi_warning}). Nhóm nhạy cảm cần hạn chế ra ngoài.`,
-          location: ward.replace('Phường ', 'P. '),
-          ward,
+          title: 'Chất lượng không khí kém (Thời gian thực)',
+          description: `Chỉ số AQI đạt ${aqi}, vượt ngưỡng an toàn. Dữ liệu ghi nhận từ hệ thống cảm biến TP. Hà Nội.`,
+          location: 'Khu vực nội thành',
+          ward: 'Đống Đa',
           timestamp: new Date().toISOString(),
           status: 'active',
-          recommendation: 'Phát cảnh báo y tế công cộng, khuyến cáo đeo khẩu trang N95 khi ra ngoài.',
-          impact: 'Ảnh hưởng sức khỏe hô hấp, tăng 30% ca khám hô hấp tại bệnh viện.',
+          recommendation: 'Khuyến cáo đeo khẩu trang N95 khi ra ngoài.',
+          impact: 'Gây khó thở cho nhóm nhạy cảm.',
         });
       }
       
-      // Phân tích nhiệt độ
-      const temp = metrics.weather?.latest?.temperature || 25;
-      if (temp > thresholds.temp_warning) {
-        const ward = getRandomWard();
-        newAlerts.push({
-          id: 'temp-high',
-          type: 'environment',
-          severity: temp > thresholds.temp_critical ? 'critical' : 'warning',
-          title: 'Cảnh báo nắng nóng',
-          description: `Nhiệt độ ${temp}°C (ngưỡng: ${thresholds.temp_warning}°C) - nguy cơ say nắng, sốc nhiệt.`,
-          location: ward.replace('Phường ', 'P. '),
-          ward,
-          timestamp: new Date().toISOString(),
-          status: 'active',
-          recommendation: 'Mở trạm làm mát công cộng, điều chỉnh giờ làm việc công trình.',
-          impact: 'Tăng tiêu thụ điện 25%, nguy cơ sức khỏe cho 15% dân số.',
-        });
-      }
-      
-      // Phân tích giao thông - nhiều vị trí
       const trafficSpeed = metrics.traffic?.latest?.average_speed || 40;
       if (trafficSpeed < thresholds.traffic_speed_warning) {
-        // Generate alerts for multiple wards
-        const wardsWithTraffic = [getRandomWard(), getRandomWard(), getRandomWard()];
-        wardsWithTraffic.forEach((ward, idx) => {
-          newAlerts.push({
-            id: `traffic-jam-${idx}`,
-            type: 'traffic',
-            severity: trafficSpeed < thresholds.traffic_speed_critical ? 'critical' : 'warning',
-            title: 'Ùn tắc giao thông',
-            description: `Tốc độ trung bình ${Math.round(trafficSpeed + Math.random() * 5)} km/h - dưới 50% bình thường.`,
-            location: ward.replace('Phường ', 'P. '),
-            ward,
-            timestamp: new Date().toISOString(),
-            status: 'active',
-            recommendation: 'Điều phối đèn giao thông, triển khai CSGT tại các nút.',
-            impact: 'Tăng thời gian di chuyển 45 phút.',
-          });
-        });
-      }
-      
-      // Phân tích bãi đỗ
-      const totalParking = overview.entity_statistics?.parking?.total || 100;
-      const occupancy = 85 + Math.random() * 10;
-      if (occupancy > thresholds.parking_warning) {
-        const ward = getRandomWard();
-        newAlerts.push({
-          id: 'parking-full',
-          type: 'parking',
-          severity: occupancy > thresholds.parking_critical ? 'warning' : 'info',
-          title: 'Bãi đỗ xe sắp đầy',
-          description: `Tỷ lệ lấp đầy ${Math.round(occupancy)}% - chỉ còn ${Math.round(totalParking * (100 - occupancy) / 100)} chỗ trống.`,
-          location: ward.replace('Phường ', 'P. '),
-          ward,
+        sensorAlerts.push({
+          id: 'sensor-traffic-realtime',
+          type: 'traffic',
+          severity: trafficSpeed < thresholds.traffic_speed_critical ? 'critical' : 'warning',
+          title: 'Ùn tắc giao thông nghiêm trọng',
+          description: `Tốc độ trung bình chỉ đạt ${Math.round(trafficSpeed)} km/h. Các trục đường chính đang bị quá tải.`,
+          location: 'Trục đường chính',
+          ward: 'Ba Đình',
           timestamp: new Date().toISOString(),
           status: 'active',
-          recommendation: 'Hướng dẫn xe đến bãi đỗ ngoại vi, kích hoạt shuttle bus.',
-          impact: 'Xe tìm chỗ đỗ tăng 20 phút, tăng khí thải khu vực.',
+          recommendation: 'Sử dụng các tuyến đường thay thế hoặc phương tiện công cộng.',
+          impact: 'Tăng thời gian di chuyển đáng kể.',
         });
       }
       
-      // Phân tích sự cố dân sự - ward-specific
-      const pendingIssues = Math.round((overview.entity_statistics?.civic_issues?.total || 50) * 0.35);
-      if (pendingIssues > 15) {
-        const affectedWards = [getRandomWard(), getRandomWard()];
-        affectedWards.forEach((ward, idx) => {
-          newAlerts.push({
-            id: `civic-backlog-${idx}`,
-            type: 'civic',
-            severity: pendingIssues > 25 ? 'warning' : 'info',
-            title: 'Tồn đọng sự cố dân sự',
-            description: `${Math.round(pendingIssues / 2)} sự cố chưa xử lý tại khu vực này.`,
-            location: ward.replace('Phường ', 'P. '),
-            ward,
-            timestamp: new Date().toISOString(),
-            status: 'active',
-            recommendation: 'Tăng cường đội xử lý sự cố, ưu tiên theo mức độ nghiêm trọng.',
-            impact: 'Giảm điểm hài lòng công dân.',
-          });
-        });
+      // 2. Process database alerts (manual/app alerts)
+      let dbAlerts: Alert[] = [];
+      if (dbResponse && Array.isArray(dbResponse.data)) {
+        dbAlerts = dbResponse.data.map((a: any) => ({
+            id: String(a._id || a.id || `db-${Date.now()}-${Math.random()}`),
+            type: a.type || 'system',
+            severity: a.severity || 'info',
+            title: a.title || 'Cảnh báo hệ thống',
+            description: a.description || '',
+            location: a.ward?.replace('Phường ', 'P. ') || 'Hà Nội',
+            ward: a.ward || 'Hà Nội',
+            timestamp: a.createdAt || new Date().toISOString(),
+            status: a.status || 'active',
+            recommendation: a.recommendation || '',
+            impact: a.impact || '',
+            isAIGenerated: !!a.isAIGenerated
+        }));
+      } else {
+        console.warn('Invalid dbResponse for alerts:', dbResponse);
       }
       
-      // Thêm một số alert mẫu nếu không có dữ liệu thực
-      if (newAlerts.length === 0) {
-        newAlerts.push({
-          id: 'system-ok',
+      // Merge: DB alerts (manual) usually take priority or should be mixed
+      const allAlerts = [...dbAlerts, ...sensorAlerts];
+      
+      if (allAlerts.length === 0) {
+        allAlerts.push({
+          id: 'system-stable-ok',
           type: 'system',
           severity: 'info',
-          title: 'Hệ thống hoạt động bình thường',
-          description: 'Tất cả các chỉ số đều trong ngưỡng an toàn.',
-          location: 'Toàn hệ thống',
+          title: 'Hệ thống đang hoạt động tốt',
+          description: 'Không ghi nhận sự cố hay chỉ số bất thường nào.',
+          location: 'Toàn thành phố',
           timestamp: new Date().toISOString(),
           status: 'active',
-          recommendation: 'Tiếp tục giám sát và duy trì.',
-          impact: 'Không có ảnh hưởng tiêu cực.',
+          recommendation: 'Tiếp tục duy trì nếp sống văn minh đô thị.',
+          impact: 'Môi trường sống an toàn.',
         });
       }
       
-      setAlerts(newAlerts);
+      setAlerts(allAlerts);
       
-      // Generate historical alerts
-      setHistoricalAlerts(generateHistoricalAlerts());
+      // Only generate history once or if empty to prevent jumping
+      setHistoricalAlerts(prev => prev.length > 0 ? prev : generateHistoricalAlerts());
       
-      if (showToast) toast.success('Đã cập nhật cảnh báo');
-    } catch (error) {
-      console.error('Error:', error);
-      setError('Không thể tải dữ liệu cảnh báo từ hệ thống. Vui lòng kiểm tra kết nối API.');
-      toast.error('Không thể tải cảnh báo');
+      if (showToast) toast.success('Dữ liệu đã được đồng bộ');
+    } catch (error: any) {
+      console.error('Fetch Alerts Error:', error);
+      setError(error.message);
+      toast.error('Không thể cập nhật dữ liệu');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -443,11 +405,12 @@ export default function SmartAlertsPage() {
         recommendation: alert.recommendation,
         impact: alert.impact,
         affectedPopulation: alert.affectedPopulation || 'Người dân khu vực',
-        isActive: true,
+        isAIGenerated: alert.isAIGenerated || false,
       };
 
-      await apiClient.post('/app/alerts', payload);
+      await apiClient.post('/app/alerts/', payload);
       toast.success('Đã gửi cảnh báo đến người dân', { id: 'push-alert' });
+      fetchAlerts(); // Refresh immediately
     } catch (error: any) {
       console.error('Push alert error:', error);
       const message = error.response?.data?.detail || error.message || 'Không thể gửi cảnh báo';
@@ -469,7 +432,7 @@ export default function SmartAlertsPage() {
     if (!confirm('Bạn có chắc muốn xóa cảnh báo này?')) return;
     
     try {
-      await apiClient.delete(`/app/alerts/${id}`);
+      await apiClient.delete(`/app/alerts/${id}/`);
       setAlerts(prev => prev.filter(a => a.id !== id));
       toast.success('Đã xóa cảnh báo');
     } catch (error) {
@@ -1070,7 +1033,6 @@ export default function SmartAlertsPage() {
                   }
                   
                   if (editingAlert) {
-                    // Update existing alert
                     const updatedAlert: Alert = {
                       ...editingAlert,
                       type: manualAlert.type,
@@ -1084,37 +1046,41 @@ export default function SmartAlertsPage() {
                     };
                     await updateAlert(updatedAlert);
                   } else {
-                    // Create new alert
-                    const newAlert: Alert = {
-                      id: `manual-${Date.now()}`,
-                      type: manualAlert.type,
-                      severity: manualAlert.severity,
+                    const payload = {
                       title: manualAlert.title,
                       description: manualAlert.description,
-                      location: manualAlert.ward?.replace('Phường ', 'P. ') || 'Hà Nội',
-                      ward: manualAlert.ward,
-                      timestamp: new Date().toISOString(),
-                      status: 'active',
+                      type: manualAlert.type,
+                      severity: manualAlert.severity,
+                      ward: manualAlert.ward || 'Hà Nội',
                       recommendation: manualAlert.recommendation,
                       impact: manualAlert.impact,
+                      affectedPopulation: 'Người dân khu vực',
                       isAIGenerated: false,
                     };
                     
-                    setAlerts(prev => [newAlert, ...prev]);
+                    try {
+                      toast.loading('Đang lưu cảnh báo...', { id: 'save-alert' });
+                      await apiClient.post('/app/alerts/', payload);
+                      toast.success('Đã tạo cảnh báo thành công', { id: 'save-alert' });
+                      
+                      setManualAlert({
+                        type: 'environment',
+                        severity: 'warning',
+                        title: '',
+                        description: '',
+                        ward: '',
+                        recommendation: '',
+                        impact: '',
+                      });
+                      setEditingAlert(null);
+                      setShowManualForm(false);
+                      fetchAlerts();
+                    } catch (err: any) {
+                      console.error('Save alert error:', err);
+                      const message = err.response?.data?.detail || 'Lỗi lưu dữ liệu';
+                      toast.error(`Lỗi: ${message}`, { id: 'save-alert' });
+                    }
                   }
-                  
-                  setManualAlert({
-                    type: 'environment',
-                    severity: 'warning',
-                    title: '',
-                    description: '',
-                    ward: '',
-                    recommendation: '',
-                    impact: '',
-                  });
-                  setEditingAlert(null);
-                  setShowManualForm(false);
-                  toast.success(editingAlert ? 'Đã cập nhật cảnh báo' : 'Đã tạo cảnh báo thành công');
                 }}
                 className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
