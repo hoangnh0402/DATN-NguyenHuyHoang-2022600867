@@ -27,10 +27,6 @@ interface Alert {
   isAIGenerated?: boolean;
 }
 
-// Helper to get random ward
-const getRandomWard = (): string => {
-  return HANOI_WARDS[Math.floor(Math.random() * HANOI_WARDS.length)];
-};
 
 // Static historical alerts for stability
 const generateHistoricalAlerts = (): Alert[] => {
