@@ -743,6 +743,15 @@ export default function GeographicPage() {
         .report-popup img:hover {
           transform: scale(1.05);
         }
+        .camera-popup .leaflet-popup-content-wrapper {
+          border-radius: 12px;
+          overflow: hidden;
+          padding: 0;
+        }
+        .camera-popup .leaflet-popup-content {
+          margin: 0;
+          width: 320px !important;
+        }
       `}</style>
       <div className="space-y-4 h-full">
         {/* Header */}

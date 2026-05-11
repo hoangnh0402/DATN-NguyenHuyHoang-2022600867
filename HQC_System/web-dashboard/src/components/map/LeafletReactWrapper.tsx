@@ -174,7 +174,16 @@ export function Marker({ position, icon, children }: MarkerProps) {
     markerRef.current = marker;
 
     if (children) {
-      const popup = L.popup();
+      let popupOptions: L.PopupOptions = { maxWidth: 400 };
+      if (React.isValidElement(children)) {
+        const props = children.props as any;
+        if (props.maxWidth) popupOptions.maxWidth = props.maxWidth;
+        if (props.minWidth) popupOptions.minWidth = props.minWidth;
+        if (props.className) popupOptions.className = props.className;
+        if (props.closeButton !== undefined) popupOptions.closeButton = props.closeButton;
+      }
+      
+      const popup = L.popup(popupOptions);
       popupRef.current = popup;
       marker.bindPopup(popup);
 
@@ -239,7 +248,16 @@ export function CircleMarker({ center, radius = 10, pathOptions, children }: Cir
     circleRef.current = circle;
 
     if (children) {
-      const popup = L.popup();
+      let popupOptions: L.PopupOptions = { maxWidth: 400 };
+      if (React.isValidElement(children)) {
+        const props = children.props as any;
+        if (props.maxWidth) popupOptions.maxWidth = props.maxWidth;
+        if (props.minWidth) popupOptions.minWidth = props.minWidth;
+        if (props.className) popupOptions.className = props.className;
+        if (props.closeButton !== undefined) popupOptions.closeButton = props.closeButton;
+      }
+      
+      const popup = L.popup(popupOptions);
       popupRef.current = popup;
       circle.bindPopup(popup);
 

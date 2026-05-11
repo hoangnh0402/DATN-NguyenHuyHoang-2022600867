@@ -98,15 +98,15 @@ export function TrafficCameraPopup({ camera }: TrafficCameraPopupProps) {
   }, []);
 
   return (
-    <div className="w-[320px]">
+    <div className="w-[320px] flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden">
       {/* Header - Compact */}
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-2 p-3 pb-2 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-600/20">
           <Video className="w-4 h-4 text-red-500" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-sm text-gray-900 dark:text-white truncate">{camera.name}</h3>
-          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${
+          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium mt-0.5 ${
             camera.status === 'online' ? 'bg-green-600/20 text-green-600' :
             camera.status === 'demo' ? 'bg-yellow-600/20 text-yellow-600' :
             'bg-red-600/20 text-red-600'
@@ -118,7 +118,7 @@ export function TrafficCameraPopup({ camera }: TrafficCameraPopupProps) {
       </div>
 
       {/* Video Player - Compact */}
-      <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
+      <div className="relative aspect-video bg-black w-full">
         <video
           ref={videoRef}
           src={camera.videoUrl}
