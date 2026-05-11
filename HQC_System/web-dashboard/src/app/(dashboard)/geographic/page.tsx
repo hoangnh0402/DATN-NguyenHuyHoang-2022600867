@@ -239,6 +239,8 @@ const MapController = dynamic(
     // Return a component that uses useMap
     return {
       default: function MapControllerInner({ 
+        center, 
+        zoom, 
         bounds 
       }: { 
         center?: [number, number]; 
@@ -248,7 +250,6 @@ const MapController = dynamic(
         const map = useMap();
         
         useEffect(() => {
-          // Fit to bounds when bounds change
           if (bounds) {
             map.fitBounds(bounds, {
               padding: [50, 50],
@@ -256,8 +257,13 @@ const MapController = dynamic(
               animate: true,
               duration: 0.5,
             });
+          } else if (center && zoom) {
+            map.setView(center, zoom, {
+              animate: true,
+              duration: 0.5
+            });
           }
-        }, [map, bounds]);
+        }, [map, center, zoom, bounds]);
         
         return null;
       }
@@ -728,31 +734,6 @@ export default function GeographicPage() {
 
   return (
     <>
-      <style jsx global>{`
-        .report-popup .leaflet-popup-content-wrapper {
-          border-radius: 12px;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .report-popup .leaflet-popup-content {
-          margin: 12px;
-          min-width: 250px;
-        }
-        .report-popup img {
-          transition: transform 0.2s ease-in-out;
-        }
-        .report-popup img:hover {
-          transform: scale(1.05);
-        }
-        .camera-popup .leaflet-popup-content-wrapper {
-          border-radius: 12px;
-          overflow: hidden;
-          padding: 0;
-        }
-        .camera-popup .leaflet-popup-content {
-          margin: 0;
-          width: 320px !important;
-        }
-      `}</style>
       <div className="space-y-4 h-full">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -825,7 +806,7 @@ export default function GeographicPage() {
       <div className="flex gap-4" style={{ height: 'calc(100vh - 340px)', minHeight: '500px' }}>
         
         {/* Left Sidebar - Selector & Controls */}
-        <div className="w-72 flex-shrink-0 flex flex-col gap-4 overflow-visible">
+        <div className="w-72 flex-shrink-0 flex flex-col gap-4 overflow-visible h-full min-h-0">
           {/* Boundary Selector */}
           <div className="bg-white dark:bg-slate-900 rounded-lg border-2 border-green-200 dark:border-green-800 p-4 relative z-50 shadow-md">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -951,26 +932,26 @@ export default function GeographicPage() {
                   <p className="text-xs text-muted-foreground">Xem video thực tế</p>
                 </div>
               </label>
-              <label className="flex items-center gap-3 cursor-pointer">
+              <label className="flex items-center gap-3 cursor-pointer group">
                 <input
                   type="checkbox"
                   checked={layerVisibility.reports}
                   onChange={() => toggleLayer('reports')}
                   className="w-4 h-4 rounded border-border text-green-600 focus:ring-green-500"
                 />
-                <div>
-                  <p className="text-sm text-foreground flex items-center gap-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-foreground flex items-center gap-1 group-hover:text-green-600 transition-colors">
                     <AlertTriangle className="w-3 h-3 text-amber-500" />
-                    <span className={layerVisibility.reports ? 'text-green-600 font-medium' : ''}>Phản ánh từ dân</span>
+                    <span className={layerVisibility.reports ? 'text-green-600 font-medium' : ''}>Phản ánh dân</span>
                   </p>
-                  <p className="text-xs text-muted-foreground">{citizenReports.length} báo cáo</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{citizenReports.length} báo cáo</p>
                 </div>
               </label>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="bg-card rounded-lg border border-border p-4 flex-1 overflow-y-auto">
+          <div className="bg-card rounded-lg border border-border p-4 flex-1 overflow-y-auto min-h-0">
             <h3 className="text-sm font-semibold text-foreground mb-3">Chú thích</h3>
             
             {/* Map layers */}
@@ -1068,16 +1049,23 @@ export default function GeographicPage() {
                   <Camera className="w-3 h-3 text-green-500" />
                   <span className="text-green-600">Camera giao thông ({TRAFFIC_CAMERAS.length})</span>
                 </p>
-                <div className="space-y-1 text-[10px]">
+                <div className="space-y-1">
                   {TRAFFIC_CAMERAS.map((cam) => (
-                    <div key={cam.id} className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
-                      <span className="truncate">{cam.name}</span>
-                    </div>
+                    <button 
+                      key={cam.id} 
+                      onClick={() => {
+                        setMapCenter(cam.location);
+                        setMapZoom(17);
+                      }}
+                      className="w-full flex items-center gap-1.5 p-1 rounded hover:bg-muted transition-colors text-left group"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse flex-shrink-0"></div>
+                      <span className="text-[10px] truncate group-hover:text-green-600 transition-colors">{cam.name}</span>
+                    </button>
                   ))}
                 </div>
                 <p className="text-[9px] text-muted-foreground mt-2 italic">
-                  Click vào marker để xem video
+                  Bấm vào tên để xem vị trí
                 </p>
               </div>
             )}

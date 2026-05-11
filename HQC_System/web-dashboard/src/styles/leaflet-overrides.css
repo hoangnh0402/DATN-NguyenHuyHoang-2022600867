@@ -69,3 +69,29 @@
 .dark .camera-popup .leaflet-popup-tip {
   background: #1f2937;
 }
+
+/* Report popup styles */
+.report-popup .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.report-popup .leaflet-popup-content {
+  margin: 12px;
+  min-width: 250px;
+}
+
+.report-popup img {
+  transition: transform 0.2s ease-in-out;
+}
+
+.report-popup img:hover {
+  transform: scale(1.05);
+}
+
+/* Ensure popups follow theme */
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background-color: #1f2937;
+  color: #f3f4f6;
+}
