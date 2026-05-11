@@ -133,8 +133,9 @@ export const GEO_API_BASE_URL = getCurrentApiBaseUrl();
  */
 export const TOMTOM_API_KEY =
   Constants.expoConfig?.extra?.tomtomApiKey ||
-  (typeof process !== 'undefined' && process.env?.TOMTOM_API_KEY) ||
+  (typeof process !== 'undefined' ? (process.env?.EXPO_PUBLIC_TOMTOM_API_KEY || process.env?.TOMTOM_API_KEY) : '') ||
   '';
+
 
 /**
  * MongoDB Atlas Connection String
@@ -164,6 +165,12 @@ export const isTomTomApiKeyConfigured = (): boolean => {
     TOMTOM_API_KEY.length >= 32
   );
 };
+
+// Log for debugging (only in development)
+if (typeof __DEV__ !== 'undefined' && __DEV__) {
+  console.log('[ENV] TomTom API Key configured:', isTomTomApiKeyConfigured() ? 'YES' : 'NO', 
+    'Length:', TOMTOM_API_KEY ? TOMTOM_API_KEY.length : 0);
+}
 
 // =============================================================================
 // DEBUG HELPERS

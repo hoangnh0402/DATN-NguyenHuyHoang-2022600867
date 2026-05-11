@@ -6,8 +6,8 @@
 require('dotenv').config();
 
 // Debug: Log environment variables during build
-console.log('[Build] EXPO_PUBLIC_API_BASE_URL:', process.env.EXPO_PUBLIC_API_BASE_URL || 'NOT SET');
-console.log('[Build] TOMTOM_API_KEY:', process.env.TOMTOM_API_KEY ? 'SET (hidden)' : 'NOT SET');
+console.log('[Build] EXPO_PUBLIC_API_BASE_URL:', process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1 (fallback)');
+console.log('[Build] TOMTOM_API_KEY:', (process.env.EXPO_PUBLIC_TOMTOM_API_KEY || process.env.TOMTOM_API_KEY || 'duLNzPWO9DsYpsT5BTXCNcU49N1ecUxb') ? 'SET (hidden/fallback)' : 'NOT SET');
 
 module.exports = {
   expo: {
@@ -40,7 +40,7 @@ module.exports = {
     extra: {
       // Only need one API base URL, all others are derived automatically
       apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1',
-      tomtomApiKey: process.env.TOMTOM_API_KEY || '',
+      tomtomApiKey: process.env.EXPO_PUBLIC_TOMTOM_API_KEY || process.env.TOMTOM_API_KEY || 'duLNzPWO9DsYpsT5BTXCNcU49N1ecUxb',
       mongodbUri: process.env.MONGODB_URI || '',
       mongodbDbName: process.env.MONGODB_DB_NAME || 'hqcsystem',
     },

@@ -24,6 +24,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import reportsService from '../services/reports';
 import { useAuth } from '../contexts/AuthContext';
 import { GEO_API_BASE_URL } from '../config/env';
@@ -549,8 +550,32 @@ const CreateReportScreen: React.FC = () => {
     };
   }, []);
 
-  // Location is now fixed to default location - no geolocation needed
-  // userLocation is already set to DEFAULT_LOCATION in useState initialization
+  useEffect(() => {
+    const initLocation = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+          setUserLocation({
+            lat: location.coords.latitude,
+            lng: location.coords.longitude,
+          });
+          setSelectedLocation({
+            lat: location.coords.latitude,
+            lng: location.coords.longitude,
+          });
+          
+          // Tự động lấy địa chỉ từ tọa độ hiện tại
+          reverseGeocodeLocation(location.coords.latitude, location.coords.longitude);
+        }
+      } catch (err) {
+        console.warn('Error fetching location:', err);
+      }
+    };
+    initLocation();
+  }, []);
 
   // Initialize map when modal opens
   useEffect(() => {

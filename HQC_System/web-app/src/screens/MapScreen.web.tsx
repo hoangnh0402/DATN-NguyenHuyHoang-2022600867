@@ -384,6 +384,28 @@ const MapScreen: React.FC = () => {
     initLocation();
   };
 
+  // Gắn function chỉ đường POI lên window để popup button gọi trực tiếp
+  // Cập nhật mỗi render để luôn có closure mới nhất (userLocation, fetchRouteData)
+  useEffect(() => {
+    (window as any).__hqcPoiNavigate = (lat: number, lng: number, name: string) => {
+      console.log('[MapScreen] POI navigate called:', { lat, lng, name, userLocation });
+      if (lat && lng && userLocation) {
+        const dest: [number, number] = [lat, lng];
+        // Đóng popup trước
+        if (mapRef.current) {
+          mapRef.current.closePopup();
+        }
+        setDestination(dest);
+        setIsSelectingDestination(false);
+        showStatus(`🧭 Đang tìm đường đến ${name || 'điểm POI'}...`, 0);
+        fetchRouteData(userLocation, dest);
+      } else if (!userLocation) {
+        showStatus('❌ Chưa xác định được vị trí của bạn. Hãy bật GPS trước.', 3000);
+      }
+    };
+    return () => { delete (window as any).__hqcPoiNavigate; };
+  });
+
   // Add map click handler and moveend handler after map is initialized
   useEffect(() => {
     if (mapRef.current && (window as any).L) {
@@ -989,6 +1011,12 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
       }
       (mapRef.current as any)._routeLayer = null;
     }
+    if ((mapRef.current as any)._routeBorderLayer) {
+      if (mapRef.current && mapRef.current.hasLayer((mapRef.current as any)._routeBorderLayer)) {
+        mapRef.current.removeLayer((mapRef.current as any)._routeBorderLayer);
+      }
+      (mapRef.current as any)._routeBorderLayer = null;
+    }
     if ((mapRef.current as any)._incidentLayers) {
       (mapRef.current as any)._incidentLayers.forEach((layer: any) => {
         if (mapRef.current && mapRef.current.hasLayer(layer)) {
@@ -1050,15 +1078,42 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
     const poiLayers: any[] = [];
 
     // Vẽ route line trước để người dùng thấy route chính xác
+    // Sử dụng 2 lớp: viền đen bên ngoài + đường vàng cam bên trong (giống Google Maps)
     if (routeCoordinates.length >= 2) {
+      // Lớp viền đen bên ngoài (border)
+      const routeBorder = L.polyline(routeCoordinates, {
+        color: '#1a1a2e',
+        weight: 10,
+        opacity: 0.5,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(mapRef.current);
+
+      // Lớp đường vàng cam bên trong (main route)
       const routeLine = L.polyline(routeCoordinates, {
-        color: '#6366f1',
-        weight: 4,
-        opacity: 0.6,
-        dashArray: '8, 4',
+        color: '#FFA726',
+        weight: 6,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round',
       }).addTo(mapRef.current);
       routeLine.bindPopup('🛣️ Tuyến đường');
+
+      // Lưu cả 2 lớp để clear
       (mapRef.current as any)._routeLayer = routeLine;
+      (mapRef.current as any)._routeBorderLayer = routeBorder;
+      trafficLayers.push(routeBorder);
+      trafficLayers.push(routeLine);
+
+      // Zoom camera vừa khít tuyến đường
+      try {
+        const bounds = routeLine.getBounds();
+        if (bounds.isValid()) {
+          mapRef.current.fitBounds(bounds, { padding: [60, 60], maxZoom: 16 });
+        }
+      } catch (e) {
+        console.warn('fitBounds error:', e);
+      }
     }
 
     // Render route flows (từ chọn điểm đến) - luôn hiển thị nếu có route
@@ -1394,11 +1449,21 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
           const sub = feature?.properties?.subcategory;
           const address = feature?.properties?.address;
           const typeLabel = translatePoiType(cat, sub);
+          // Lấy tọa độ POI từ GeoJSON (format [lng, lat])
+          const poiCoords = feature.geometry?.coordinates;
+          const poiLat = poiCoords?.[1] ?? 0;
+          const poiLng = poiCoords?.[0] ?? 0;
           const popup = `
             <div style="min-width:220px;color:#111827;">
               <div style="font-weight:700;margin-bottom:4px;">${getPoiIcon(cat, sub)} ${name}</div>
               ${cat ? `<div>Loại: ${typeLabel}</div>` : ''}
               ${address ? `<div>Địa chỉ: ${address}</div>` : ''}
+              <div style="margin-top:10px;">
+                <button onclick="if(window.__hqcPoiNavigate){window.__hqcPoiNavigate(${poiLat},${poiLng},'${name.replace(/'/g, "\\'")}');}else{alert('Đang tải...');}"
+                  style="background:#20A957;color:white;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;width:100%;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;">
+                  🧭 Chỉ đường đến đây
+                </button>
+              </div>
             </div>
           `;
           layer.bindPopup(popup);
@@ -1743,19 +1808,24 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
 
 
   const fetchRouteData = async (from: [number, number], to: [number, number]) => {
-    if (!isTomTomApiKeyConfigured() || isFetchingRef.current) return;
+    if (!isTomTomApiKeyConfigured()) {
+      showStatus('❌ TomTom API Key chưa được cấu hình', 3000);
+      return;
+    }
 
+    // Cho phép ghi đè fetch đang chạy (ví dụ: user bấm chỉ đường đến POI mới)
     isFetchingRef.current = true;
     setLoading(true);
-    showStatus('🔍 Đang lấy route và dữ liệu giao thông...');
+    showStatus('🔍 Đang tìm đường...', 0);
 
     try {
       // Fetch route thực tế từ TomTom Routing API
       const routeCoords = await fetchRoute(from, to);
       
       if (routeCoords && routeCoords.length > 0) {
-        // Lưu route coordinates để vẽ route line
+        // Lưu route coordinates NGAY để vẽ route line vàng cam trước
         setRouteCoordinates(routeCoords);
+        showStatus('🛣️ Đã tìm thấy tuyến đường! Đang tải dữ liệu giao thông...', 3000);
 
         // Fetch traffic flow cho các điểm dọc route - lấy nhiều điểm hơn để cover toàn bộ route
         // Tính toán khoảng cách giữa các điểm để sample đều (mỗi ~200-300m)
