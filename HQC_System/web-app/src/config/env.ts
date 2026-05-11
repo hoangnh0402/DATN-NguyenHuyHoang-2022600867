@@ -131,11 +131,11 @@ export const GEO_API_BASE_URL = getCurrentApiBaseUrl();
 /**
  * TomTom API Key
  */
-// Lọc bỏ các giá trị rác từ webpack (vd: chuỗi "undefined", "null", quá ngắn)
+// Lọc bỏ các giá trị rác từ webpack (vd: chuỗi "undefined", "null", quá ngắn, hoặc placeholder)
 const _cleanEnvValue = (v: string | undefined): string => {
   if (!v) return '';
   const s = String(v).trim();
-  if (s === 'undefined' || s === 'null' || s.length < 10) return '';
+  if (s === 'undefined' || s === 'null' || s === 'your_tomtom_api_key_here' || s.length < 10) return '';
   return s;
 };
 

@@ -320,12 +320,19 @@ const MapScreen: React.FC = () => {
             position: 'topright',
           });
           zoomControl.addTo(mapRef.current);
+
+          // Fix: Gọi invalidateSize() ngay sau khi init để Leaflet tính đúng kích thước
+          // container div có thể chưa được render đầy đủ khi Leaflet init (do React Native Web wrapping)
+          // Nếu không có bước này, tiles sẽ không load khi pan/kéo bản đồ
+          mapRef.current.invalidateSize();
           
           // Trigger initial render sau khi map ready - dùng state thay vì gọi renderLayers() trực tiếp
           // Vì renderLayers() trong closure này capture state cũ (từ lúc mount), cần React re-render
           setTimeout(() => {
             if (mapRef.current && (window as any).L) {
               console.log('Map initialized, setting mapReady = true');
+              // Gọi thêm lần nữa sau 300ms để đảm bảo layout đã ổn định
+              mapRef.current.invalidateSize();
               setMapReady(true);
             }
           }, 300);
@@ -340,6 +347,24 @@ const MapScreen: React.FC = () => {
       if (mapRef.current) {
         mapRef.current.remove();
       }
+    };
+  }, []);
+
+  // Fix: Dùng ResizeObserver để tự động gọi invalidateSize() khi container thay đổi kích thước
+  // Điều này đảm bảo tiles load đúng khi layout thay đổi (SafeAreaView insets, navigation, v.v.)
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    });
+
+    resizeObserver.observe(mapContainerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
     };
   }, []);
 
@@ -1553,7 +1578,7 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
   }, [route.params, currentCity]);
 
   const fetchAllData = async () => {
-    if (!isTomTomApiKeyConfigured() || isFetchingRef.current) return;
+    if (isFetchingRef.current) return;
 
     isFetchingRef.current = true;
     setLoading(true);
@@ -1657,22 +1682,26 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
 
   const fetchRoute = async (from: [number, number], to: [number, number]): Promise<Array<[number, number]> | null> => {
     try {
-      // TomTom Routing API - cải thiện để tính toán route chính xác hơn
+      // TomTom Routing API
       const waypoints = `${from[0]},${from[1]}:${to[0]},${to[1]}`;
-      const url = new URL(`https://api.tomtom.com/routing/1/calculateRoute/${waypoints}/json`);
-      url.searchParams.set('key', TOMTOM_API_KEY);
-      url.searchParams.set('instructionsType', 'text');
-      url.searchParams.set('language', 'vi-VN');
-      url.searchParams.set('routeType', 'fastest'); // fastest: ưu tiên tốc độ
-      url.searchParams.set('traffic', 'true'); // Xem xét tình trạng giao thông
-      url.searchParams.set('travelMode', 'car');
-      url.searchParams.set('maxAlternatives', '3'); // Lấy 3 route alternatives để chọn route tốt nhất
-      url.searchParams.set('computeBestOrder', 'false');
-      url.searchParams.set('routeRepresentation', 'polyline'); // Lấy polyline để có nhiều điểm hơn
+      const tomtomUrl = new URL(`https://api.tomtom.com/routing/1/calculateRoute/${waypoints}/json`);
+      tomtomUrl.searchParams.set('key', TOMTOM_API_KEY);
+      tomtomUrl.searchParams.set('instructionsType', 'text');
+      tomtomUrl.searchParams.set('language', 'vi-VN');
+      tomtomUrl.searchParams.set('routeType', 'fastest');
+      tomtomUrl.searchParams.set('traffic', 'true');
+      tomtomUrl.searchParams.set('travelMode', 'car');
+      tomtomUrl.searchParams.set('maxAlternatives', '3');
+      tomtomUrl.searchParams.set('computeBestOrder', 'false');
+      tomtomUrl.searchParams.set('routeRepresentation', 'polyline');
 
-      const res = await fetch(url.toString());
+      const res = await fetch(tomtomUrl.toString());
+      
       if (!res.ok) {
         console.error('Route API error:', res.status);
+        // Có thể server trả về lỗi Unauthorized do key
+        const errText = await res.text();
+        console.error('Route API error response:', errText);
         return null;
       }
 
