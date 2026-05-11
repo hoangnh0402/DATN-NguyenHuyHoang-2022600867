@@ -273,6 +273,11 @@ const MapScreen: React.FC = () => {
   const [isSelectingDestination, setIsSelectingDestination] = useState(false); // Đang ở chế độ chọn điểm đến
   const [routeCoordinates, setRouteCoordinates] = useState<Array<[number, number]>>([]); // Tọa độ route từ userLocation đến destination
   const [quotaExhausted, setQuotaExhausted] = useState(false); // Track API quota exhaustion
+  const [mapReady, setMapReady] = useState(false); // Flag để trigger renderLayers sau khi map init xong
+
+  // Refs để lưu giá trị mới nhất - tránh closure cũ trong window callbacks
+  const userLocationRef = useRef<[number, number] | null>(defaultLocation);
+  const fetchRouteDataRef = useRef<((from: [number, number], to: [number, number]) => void) | null>(null);
 
   // Load Leaflet dynamically
   useEffect(() => {
@@ -316,12 +321,12 @@ const MapScreen: React.FC = () => {
           });
           zoomControl.addTo(mapRef.current);
           
-          // Trigger initial render after map is ready
-          // Đợi một chút để đảm bảo userLocation đã được set
+          // Trigger initial render sau khi map ready - dùng state thay vì gọi renderLayers() trực tiếp
+          // Vì renderLayers() trong closure này capture state cũ (từ lúc mount), cần React re-render
           setTimeout(() => {
             if (mapRef.current && (window as any).L) {
-              console.log('Map initialized, triggering initial render');
-              renderLayers();
+              console.log('Map initialized, setting mapReady = true');
+              setMapReady(true);
             }
           }, 300);
         }
@@ -384,12 +389,19 @@ const MapScreen: React.FC = () => {
     initLocation();
   };
 
-  // Gắn function chỉ đường POI lên window để popup button gọi trực tiếp
-  // Cập nhật mỗi render để luôn có closure mới nhất (userLocation, fetchRouteData)
+  // Sync userLocation vào ref để window callback luôn đọc được giá trị mới nhất
+  useEffect(() => {
+    userLocationRef.current = userLocation;
+  }, [userLocation]);
+
+  // Gắn function chỉ đường POI lên window CHỈ MỘT LẦN khi mount
+  // Dùng ref thay vì closure để tránh race condition khi cleanup + reassign
   useEffect(() => {
     (window as any).__hqcPoiNavigate = (lat: number, lng: number, name: string) => {
-      console.log('[MapScreen] POI navigate called:', { lat, lng, name, userLocation });
-      if (lat && lng && userLocation) {
+      const currentLocation = userLocationRef.current;
+      const routeDataFn = fetchRouteDataRef.current;
+      console.log('[MapScreen] POI navigate called:', { lat, lng, name, currentLocation });
+      if (lat && lng && currentLocation && routeDataFn) {
         const dest: [number, number] = [lat, lng];
         // Đóng popup trước
         if (mapRef.current) {
@@ -398,13 +410,13 @@ const MapScreen: React.FC = () => {
         setDestination(dest);
         setIsSelectingDestination(false);
         showStatus(`🧭 Đang tìm đường đến ${name || 'điểm POI'}...`, 0);
-        fetchRouteData(userLocation, dest);
-      } else if (!userLocation) {
+        routeDataFn(currentLocation, dest);
+      } else if (!currentLocation) {
         showStatus('❌ Chưa xác định được vị trí của bạn. Hãy bật GPS trước.', 3000);
       }
     };
     return () => { delete (window as any).__hqcPoiNavigate; };
-  });
+  }, []); // Chỉ chạy 1 lần - dùng ref để đọc state mới nhất
 
   // Add map click handler and moveend handler after map is initialized
   useEffect(() => {
@@ -1487,6 +1499,7 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
       renderLayers();
     }
   }, [
+    mapReady, // Thêm mapReady để trigger render ngay sau khi map init xong
     trafficFlows,
     routeFlows,
     incidents,
@@ -2373,6 +2386,10 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
       isFetchingRef.current = false;
     }
   };
+
+  // Sync fetchRouteData vào ref sau mỗi render để window.__hqcPoiNavigate luôn gọi phiên bản mới nhất
+  // Không dùng useEffect vì cần đồng bộ ngay (trước bất kỳ event nào)
+  fetchRouteDataRef.current = fetchRouteData;
 
   // Add click handler to map - chỉ khi đang chọn điểm đến
   useEffect(() => {

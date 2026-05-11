@@ -133,8 +133,8 @@ export const GEO_API_BASE_URL = getCurrentApiBaseUrl();
  */
 export const TOMTOM_API_KEY =
   Constants.expoConfig?.extra?.tomtomApiKey ||
-  (typeof process !== 'undefined' ? (process.env?.EXPO_PUBLIC_TOMTOM_API_KEY || process.env?.TOMTOM_API_KEY) : '') ||
-  '';
+  (typeof process !== 'undefined' ? (process.env.EXPO_PUBLIC_TOMTOM_API_KEY || process.env.TOMTOM_API_KEY) : '') ||
+  'duLNzPWO9DsYpsT5BTXCNcU49N1ecUxb';
 
 
 /**
