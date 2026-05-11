@@ -680,7 +680,7 @@ const ExploreScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {(selectedFilter === 'report' ? reportList : NEARBY_CARDS)
+            {reportList
               .filter((card) => {
                 if (!selectedFilter || selectedFilter === 'report') return true;
                 return card.category === (selectedFilter === 'traffic'
