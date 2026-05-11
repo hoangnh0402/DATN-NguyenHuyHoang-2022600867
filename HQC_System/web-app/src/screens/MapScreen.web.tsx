@@ -1821,8 +1821,11 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
 
 
   const fetchRouteData = async (from: [number, number], to: [number, number]) => {
-    if (!isTomTomApiKeyConfigured()) {
-      showStatus('❌ TomTom API Key chưa được cấu hình', 3000);
+    // Log key thực tế đang dùng để debug
+    console.log('[fetchRouteData] Called with key:', TOMTOM_API_KEY ? `${TOMTOM_API_KEY.substring(0, 6)}... (len=${TOMTOM_API_KEY.length})` : 'EMPTY');
+    
+    if (!TOMTOM_API_KEY || TOMTOM_API_KEY.length < 10) {
+      showStatus('❌ TomTom API Key bị thiếu hoàn toàn', 3000);
       return;
     }
 

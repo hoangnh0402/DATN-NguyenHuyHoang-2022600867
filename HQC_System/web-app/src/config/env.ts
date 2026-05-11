@@ -131,11 +131,33 @@ export const GEO_API_BASE_URL = getCurrentApiBaseUrl();
 /**
  * TomTom API Key
  */
-export const TOMTOM_API_KEY =
-  Constants.expoConfig?.extra?.tomtomApiKey ||
-  (typeof process !== 'undefined' ? (process.env.EXPO_PUBLIC_TOMTOM_API_KEY || process.env.TOMTOM_API_KEY) : '') ||
-  'duLNzPWO9DsYpsT5BTXCNcU49N1ecUxb';
+// Lọc bỏ các giá trị rác từ webpack (vd: chuỗi "undefined", "null", quá ngắn)
+const _cleanEnvValue = (v: string | undefined): string => {
+  if (!v) return '';
+  const s = String(v).trim();
+  if (s === 'undefined' || s === 'null' || s.length < 10) return '';
+  return s;
+};
 
+const TOMTOM_FALLBACK = 'duLNzPWO9DsYpsT5BTXCNcU49N1ecUxb';
+
+const _tomtomFromExpo = _cleanEnvValue(
+  Constants.expoConfig?.extra?.tomtomApiKey as string | undefined
+);
+const _tomtomFromProcess = typeof process !== 'undefined'
+  ? _cleanEnvValue(process.env.EXPO_PUBLIC_TOMTOM_API_KEY || process.env.TOMTOM_API_KEY)
+  : '';
+
+export const TOMTOM_API_KEY: string =
+  _tomtomFromExpo || _tomtomFromProcess || TOMTOM_FALLBACK;
+
+// Debug - luôn log ra console để dễ kiểm tra
+console.log('[ENV] TomTom API Key:', {
+  fromExpoConfig: _tomtomFromExpo ? `${_tomtomFromExpo.substring(0, 6)}... (len=${_tomtomFromExpo.length})` : 'undefined',
+  fromProcess: _tomtomFromProcess ? `${_tomtomFromProcess.substring(0, 6)}... (len=${_tomtomFromProcess.length})` : 'undefined',
+  finalKey: TOMTOM_API_KEY ? `${TOMTOM_API_KEY.substring(0, 6)}... (len=${TOMTOM_API_KEY.length})` : 'EMPTY',
+  usingFallback: TOMTOM_API_KEY === TOMTOM_FALLBACK,
+});
 
 /**
  * MongoDB Atlas Connection String
@@ -159,11 +181,17 @@ export const MONGODB_DB_NAME =
  * Kiểm tra xem TomTom API key đã được cấu hình chưa
  */
 export const isTomTomApiKeyConfigured = (): boolean => {
-  return (
-    TOMTOM_API_KEY !== '' &&
-    TOMTOM_API_KEY !== 'YOUR_TOMTOM_API_KEY_HERE' &&
-    TOMTOM_API_KEY.length >= 32
+  const key = TOMTOM_API_KEY;
+  const result = (
+    !!key &&
+    key !== '' &&
+    key !== 'YOUR_TOMTOM_API_KEY_HERE' &&
+    key.length >= 32
   );
+  if (!result) {
+    console.warn('[ENV] isTomTomApiKeyConfigured = false. Key:', key ? `len=${key.length}` : 'EMPTY');
+  }
+  return result;
 };
 
 // Log for debugging (only in development)
