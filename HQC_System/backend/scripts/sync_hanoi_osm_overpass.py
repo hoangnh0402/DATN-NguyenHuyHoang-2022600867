@@ -11,6 +11,7 @@ import sys
 import os
 import requests
 import asyncio
+import json
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
@@ -18,28 +19,53 @@ from sqlalchemy.ext.asyncio import create_async_engine
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.core.config import settings
 
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+OVERPASS_ENDPOINTS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://lz4.overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+]
 
 HANOI_QUERY = """
-[out:json][timeout:60];
+[out:json][timeout:180];
 (
-  // Hanoi City
-  relation["admin_level"="4"]["name:en"="Hanoi"];
-  // Hanoi Districts
-  relation["admin_level"="6"](area:3601901191);
+  // Find Hanoi administrative area first (supports both vi/en names)
+  area["boundary"="administrative"]["admin_level"="4"]["name"~"Hà Nội|Ha Noi|Hanoi"];
+)->.hn;
+
+(
+  // City boundary + ward/commune level boundaries in Hanoi area
+  relation(area.hn)["boundary"="administrative"]["admin_level"~"^(4|6)$"];
 );
-out tags bb geom;
+out tags bb;
 """
 
 async def sync_hanoi_osm():
     print("🌍 Fetching real Hanoi OSM data from Overpass API...")
     
-    try:
-        response = requests.post(OVERPASS_URL, data={'data': HANOI_QUERY}, timeout=60)
-        response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        print(f"❌ Failed to fetch data from Overpass: {e}")
+    data = None
+    headers = {
+        "User-Agent": "HQC-System-Hanoi-Sync/1.0 (+https://littlefish.website)",
+        "Accept": "application/json",
+    }
+
+    for endpoint in OVERPASS_ENDPOINTS:
+        try:
+            print(f"  → Requesting Overpass endpoint: {endpoint}")
+            response = requests.post(
+                endpoint,
+                data={"data": HANOI_QUERY},
+                headers=headers,
+                timeout=120,
+            )
+            response.raise_for_status()
+            data = response.json()
+            print(f"  ✓ Overpass success: {endpoint}")
+            break
+        except Exception as e:
+            print(f"  ✗ Endpoint failed: {endpoint} -> {e}")
+
+    if data is None:
+        print("❌ Failed to fetch data from all Overpass endpoints.")
         return
 
     elements = data.get('elements', [])
@@ -57,7 +83,8 @@ async def sync_hanoi_osm():
             # Simplified geometry for demonstration (using bounding box as polygon if geom is complex)
             # In a real app, we'd reconstruct the full polygon from el['geometry']
             bounds = el.get('bounds', {})
-            if not bounds: continue
+            if not bounds:
+                continue
             
             # Create a simple box polygon from bounding box
             min_lat, min_lon = bounds['minlat'], bounds['minlon']
@@ -86,5 +113,4 @@ async def sync_hanoi_osm():
     print("✅ Real-time OSM syncing for Hanoi completed!")
 
 if __name__ == "__main__":
-    import json
     asyncio.run(sync_hanoi_osm())

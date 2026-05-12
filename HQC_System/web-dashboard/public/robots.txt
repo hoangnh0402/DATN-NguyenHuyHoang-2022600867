@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Block internal/API paths
+Disallow: /api/
+Disallow: /_next/
+
+# Keep admin/private areas out of search results
+Disallow: /admin/
+Disallow: /login/
+Disallow: /signup/
+
+Sitemap: https://littlefish.website/sitemap.xml
