@@ -70,7 +70,7 @@ class ReportsService {
    */
   async createReport(data: CreateReportData): Promise<ApiResponse<Report>> {
     try {
-      const url = this.buildUrl('/reports');
+      const url = this.buildUrl('/reports/');
       console.log('[ReportsService] createReport URL:', url);
       const response = await fetch(url, {
         method: 'POST',
@@ -109,7 +109,7 @@ class ReportsService {
       if (options?.userId) params.append('userId', options.userId);
 
       const queryString = params.toString();
-      const url = this.buildUrl(`/reports${queryString ? `?${queryString}` : ''}`);
+      const url = this.buildUrl(`/reports/${queryString ? `?${queryString}` : ''}`);
       console.log('[ReportsService] getReports URL:', url);
 
       const response = await fetch(url, {
@@ -136,7 +136,7 @@ class ReportsService {
    */
   async getReportById(id: string): Promise<ApiResponse<Report>> {
     try {
-      const url = this.buildUrl(`/reports/${id}`);
+      const url = this.buildUrl(`/reports/${id}/`);
       console.log('[ReportsService] getReportById URL:', url);
       const response = await fetch(url, {
         method: 'GET',

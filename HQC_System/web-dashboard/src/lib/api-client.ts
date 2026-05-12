@@ -4,7 +4,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
 // Force backend URL to prevent Next.js from intercepting requests
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = '/api/v1';
 
 class ApiClient {
   private client: AxiosInstance;

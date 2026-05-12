@@ -52,7 +52,7 @@ export interface User {
 
 class AuthService {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const response = await fetch(`${API_BASE}/auth/login/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ class AuthService {
     
     console.log('Register request:', { url: `${API_BASE}/auth/register`, body: { ...requestBody, password: '***' } });
     
-    const response = await fetch(`${API_BASE}/auth/register`, {
+    const response = await fetch(`${API_BASE}/auth/register/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -129,7 +129,7 @@ class AuthService {
       throw new Error('Chưa đăng nhập');
     }
 
-    const response = await fetch(`${API_BASE}/auth/me`, {
+    const response = await fetch(`${API_BASE}/auth/me/`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -162,7 +162,7 @@ class AuthService {
       throw new Error('Chưa đăng nhập');
     }
 
-    const response = await fetch(`${API_BASE}/auth/me`, {
+    const response = await fetch(`${API_BASE}/auth/me/`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,

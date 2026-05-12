@@ -41,10 +41,10 @@ async function get<T>(path: string, params?: Record<string, string | number | bo
 }
 
 export async function fetchTrafficFlow(lat: number, lon: number): Promise<TrafficFlowResponse> {
-  return get<TrafficFlowResponse>('/traffic/flow', { lat, lon });
+  return get<TrafficFlowResponse>('/traffic/flow/', { lat, lon });
 }
 
 export async function fetchTrafficFlowByLocation(locationId: string): Promise<TrafficFlowResponse> {
-  return get<TrafficFlowResponse>(`/traffic/flow/by-location/${locationId}`);
+  return get<TrafficFlowResponse>(`/traffic/flow/by-location/${locationId}/`);
 }
 

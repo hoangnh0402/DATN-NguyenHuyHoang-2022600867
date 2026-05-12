@@ -27,7 +27,7 @@ class AlertsService {
   async list(): Promise<AlertItem[]> {
     const base = API_BASE.replace(/\/$/, '');
     const urls = [
-      `${base}/alerts`, // Primary: /api/v1/app/alerts
+      `${base}/alerts/`, // Primary: /api/v1/app/alerts/
     ];
 
     for (let i = 0; i < urls.length; i++) {

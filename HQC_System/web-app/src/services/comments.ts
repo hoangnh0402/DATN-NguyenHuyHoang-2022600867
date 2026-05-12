@@ -48,7 +48,7 @@ class CommentsService {
       if (options?.skip) params.append('skip', options.skip.toString());
 
       const queryString = params.toString();
-      const url = `${this.baseUrl}/reports/${reportId}/comments${queryString ? `?${queryString}` : ''}`;
+      const url = `${this.baseUrl}/reports/${reportId}/comments/${queryString ? `?${queryString}` : ''}`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -83,7 +83,7 @@ class CommentsService {
     userName?: string
   ): Promise<Comment> {
     try {
-      const response = await fetch(`${this.baseUrl}/reports/${reportId}/comments`, {
+      const response = await fetch(`${this.baseUrl}/reports/${reportId}/comments/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ class CommentsService {
       if (userId) params.append('userId', userId);
 
       const queryString = params.toString();
-      const url = `${this.baseUrl}/reports/comments/${commentId}${queryString ? `?${queryString}` : ''}`;
+      const url = `${this.baseUrl}/reports/comments/${commentId}/${queryString ? `?${queryString}` : ''}`;
 
       const response = await fetch(url, {
         method: 'DELETE',

@@ -36,7 +36,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_administrative_boundaries_geometry', 'administrative_boundaries', ['geometry'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_administrative_boundaries_geometry ON administrative_boundaries USING GIST (geometry)")
     op.create_index(op.f('ix_administrative_boundaries_admin_level'), 'administrative_boundaries', ['admin_level'], unique=False)
     op.create_index(op.f('ix_administrative_boundaries_id'), 'administrative_boundaries', ['id'], unique=False)
     op.create_index(op.f('ix_administrative_boundaries_name'), 'administrative_boundaries', ['name'], unique=False)
@@ -60,7 +60,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_buildings_geometry', 'buildings', ['geometry'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_buildings_geometry ON buildings USING GIST (geometry)")
     op.create_index(op.f('ix_buildings_building_type'), 'buildings', ['building_type'], unique=False)
     op.create_index(op.f('ix_buildings_id'), 'buildings', ['id'], unique=False)
     op.create_index(op.f('ix_buildings_name'), 'buildings', ['name'], unique=False)
@@ -87,9 +87,9 @@ def upgrade() -> None:
     sa.Column('modified_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_entities_location_geom', 'entities', ['location_geom'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_entities_location_geom ON entities USING GIST (location_geom)")
     op.create_index(op.f('ix_entities_id'), 'entities', ['id'], unique=False)
-    op.create_index(op.f('ix_entities_location_geom'), 'entities', ['location_geom'], unique=False)
+    # Removed redundant ix_entities_location_geom
     op.create_index(op.f('ix_entities_type'), 'entities', ['type'], unique=False)
     op.create_table('environmental_data',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -129,7 +129,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_incidents_location', 'incidents', ['location'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_incidents_location ON incidents USING GIST (location)")
     op.create_index(op.f('ix_incidents_id'), 'incidents', ['id'], unique=False)
     op.create_index(op.f('ix_incidents_is_active'), 'incidents', ['is_active'], unique=False)
     op.create_index(op.f('ix_incidents_severity'), 'incidents', ['severity'], unique=False)
@@ -172,7 +172,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_pois_location', 'pois', ['location'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_pois_location ON pois USING GIST (location)")
     op.create_index(op.f('ix_pois_category'), 'pois', ['category'], unique=False)
     op.create_index(op.f('ix_pois_id'), 'pois', ['id'], unique=False)
     op.create_index(op.f('ix_pois_name'), 'pois', ['name'], unique=False)
@@ -199,7 +199,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_public_facilities_location', 'public_facilities', ['location'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_public_facilities_location ON public_facilities USING GIST (location)")
     op.create_index(op.f('ix_public_facilities_category'), 'public_facilities', ['category'], unique=False)
     op.create_index(op.f('ix_public_facilities_id'), 'public_facilities', ['id'], unique=False)
     op.create_index(op.f('ix_public_facilities_name'), 'public_facilities', ['name'], unique=False)
@@ -240,7 +240,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_streets_geometry', 'streets', ['geometry'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_streets_geometry ON streets USING GIST (geometry)")
     op.create_index(op.f('ix_streets_highway_type'), 'streets', ['highway_type'], unique=False)
     op.create_index(op.f('ix_streets_id'), 'streets', ['id'], unique=False)
     op.create_index(op.f('ix_streets_name'), 'streets', ['name'], unique=False)
@@ -260,7 +260,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_transport_facilities_location', 'transport_facilities', ['location'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_transport_facilities_location ON transport_facilities USING GIST (location)")
     op.create_index(op.f('ix_transport_facilities_facility_type'), 'transport_facilities', ['facility_type'], unique=False)
     op.create_index(op.f('ix_transport_facilities_id'), 'transport_facilities', ['id'], unique=False)
     op.create_index(op.f('ix_transport_facilities_osm_id'), 'transport_facilities', ['osm_id'], unique=True)
@@ -289,7 +289,7 @@ def upgrade() -> None:
     sa.Column('last_login', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_users_location', 'users', ['location'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_users_location ON users USING GIST (location)")
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_role'), 'users', ['role'], unique=False)
@@ -359,7 +359,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['verified_by'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_reports_location', 'reports', ['location'], unique=False, postgresql_using='gist')
+    op.execute("CREATE INDEX IF NOT EXISTS idx_reports_location ON reports USING GIST (location)")
     op.create_index(op.f('ix_reports_category'), 'reports', ['category'], unique=False)
     op.create_index(op.f('ix_reports_created_at'), 'reports', ['created_at'], unique=False)
     op.create_index(op.f('ix_reports_id'), 'reports', ['id'], unique=False)

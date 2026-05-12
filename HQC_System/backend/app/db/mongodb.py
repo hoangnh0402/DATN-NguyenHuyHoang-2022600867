@@ -35,10 +35,10 @@ class MongoDB:
                 await cls.db.users.create_index("role")
                 await cls.db.users.create_index("created_at")
                 
-                print(f"✅ Connected to MongoDB: {settings.MONGODB_URL}")
+                print(f"Connected to MongoDB: {settings.MONGODB_URL}")
         except Exception as e:
-            print(f"❌ FAILED to connect to MongoDB: {e}")
-            print("⚠️ Backend will continue running but DB operations will fail.")
+            print(f"FAILED to connect to MongoDB: {e}")
+            print("Backend will continue running but DB operations will fail.")
     
     @classmethod
     async def close_db(cls):
@@ -47,7 +47,7 @@ class MongoDB:
             cls.client.close()
             cls.client = None
             cls.db = None
-            print("🔌 Closed MongoDB connection")
+            print("Closed MongoDB connection")
     
     @classmethod
     def get_db(cls) -> AsyncIOMotorDatabase:

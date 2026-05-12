@@ -24,7 +24,7 @@ from app.schemas.user import UserRole, UserStatus
 async def seed_super_admin():
     """Create super admin user"""
     
-    print("🔐 HQC System Super Admin Seeder")
+    print("HQC System Super Admin Seeder")
     print("=" * 60)
     
     # Connect to MongoDB
@@ -32,8 +32,8 @@ async def seed_super_admin():
     db = client[settings.MONGODB_DB]
     users_collection = db.users
     
-    print(f"✅ Connected to MongoDB: {settings.MONGODB_URL}")
-    print(f"📦 Database: {settings.MONGODB_DB}")
+    print(f"Connected to MongoDB: {settings.MONGODB_URL}")
+    print(f"Database: {settings.MONGODB_DB}")
     
     # Super Admin credentials
     super_admin = {
@@ -50,11 +50,11 @@ async def seed_super_admin():
     existing_admin = await users_collection.find_one({"email": super_admin["email"]})
     
     if existing_admin:
-        print(f"\n⚠️  Super admin đã tồn tại: {super_admin['email']}")
-        print(f"📧 Email: {existing_admin['email']}")
-        print(f"👤 Tên: {existing_admin['full_name']}")
-        print(f"🔑 Vai trò: {existing_admin['role']}")
-        print(f"📅 Tạo lúc: {existing_admin['created_at']}")
+        print(f"\nSuper admin already exists: {super_admin['email']}")
+        print(f"Email: {existing_admin['email']}")
+        print(f"Name: {existing_admin['full_name']}")
+        print(f"Role: {existing_admin['role']}")
+        print(f"Created at: {existing_admin['created_at']}")
         client.close()
         return
     
@@ -84,13 +84,13 @@ async def seed_super_admin():
     # Insert super admin
     result = await users_collection.insert_one(admin_doc)
     
-    print(f"\n✅ Đã tạo Super Admin thành công!")
-    print(f"📧 Email: {super_admin['email']}")
-    print(f"🔑 Password: {super_admin['password']} (⚠️  PHẢI ĐỔI MẬT KHẨU SAU KHI ĐĂNG NHẬP LẦN ĐẦU)")
-    print(f"👤 Tên: {super_admin['full_name']}")
-    print(f"🏢 Phòng ban: {super_admin['department']}")
-    print(f"💼 Chức vụ: {super_admin['position']}")
-    print(f"🆔 ID: {result.inserted_id}")
+    print(f"\nSuper Admin created successfully!")
+    print(f"Email: {super_admin['email']}")
+    print(f"Password: {super_admin['password']} (PHẢI ĐỔI MẬT KHẨU SAU KHI ĐĂNG NHẬP LẦN ĐẦU)")
+    print(f"Name: {super_admin['full_name']}")
+    print(f"Department: {super_admin['department']}")
+    print(f"Position: {super_admin['position']}")
+    print(f"ID: {result.inserted_id}")
     
     # Create indexes
     await users_collection.create_index("email", unique=True)
@@ -98,10 +98,10 @@ async def seed_super_admin():
     await users_collection.create_index("role")
     await users_collection.create_index("created_at")
     
-    print(f"\n📊 Đã tạo indexes cho users collection")
+    print(f"\nCreated indexes for users collection")
     
     # Also create a few test users for demo
-    print(f"\n👥 Tạo các user demo...")
+    print(f"\nCreating demo users...")
     
     demo_users = [
         {
@@ -157,20 +157,20 @@ async def seed_super_admin():
             }
             
             await users_collection.insert_one(user_doc)
-            print(f"   ✅ {user_data['email']} - {user_data['role']} - {user_data['status']}")
+            print(f"   {user_data['email']} - {user_data['role']} - {user_data['status']}")
     
     # Count users
     total_users = await users_collection.count_documents({})
     pending_users = await users_collection.count_documents({"status": UserStatus.PENDING})
     approved_users = await users_collection.count_documents({"status": UserStatus.APPROVED})
     
-    print(f"\n📊 Thống kê users:")
-    print(f"   Tổng số: {total_users}")
-    print(f"   Đã duyệt: {approved_users}")
-    print(f"   Chờ duyệt: {pending_users}")
+    print(f"\nUser Statistics:")
+    print(f"   Total: {total_users}")
+    print(f"   Approved: {approved_users}")
+    print(f"   Pending: {pending_users}")
     
-    print(f"\n🎉 Hoàn thành! Bây giờ bạn có thể đăng nhập vào dashboard.")
-    print(f"📱 API Docs: http://localhost:8000/docs")
+    print(f"\nDone! You can now login to the dashboard.")
+    print(f"API Docs: http://localhost:8000/docs")
     
     client.close()
 

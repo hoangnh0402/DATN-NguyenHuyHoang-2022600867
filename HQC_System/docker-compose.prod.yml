@@ -1,6 +1,3 @@
-# Copyright (c) 2025 HQC System Contributors
-# Licensed under the MIT License
-
 version: '3.8'
 
 services:
@@ -8,49 +5,108 @@ services:
     image: postgis/postgis:15-3.4
     container_name: hqc-system-postgres-prod
     environment:
-      POSTGRES_USER: hqcsystem
+      POSTGRES_USER: ${POSTGRES_USER:-hqcsystem}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: hqc_system_db
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${POSTGRES_DB:-hqc_system_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: always
 
   mongodb:
     image: mongo:7.0
     container_name: hqc-system-mongodb-prod
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    restart: always
 
   redis:
     image: redis:7.2-alpine
     container_name: hqc-system-redis-prod
+    restart: always
+
+  graphdb:
+    image: stain/jena-fuseki:latest
+    container_name: hqc-system-graphdb-prod
+    environment:
+      ADMIN_PASSWORD: admin
     ports:
-      - "6379:6379"
+      - "3030:3030"
+    volumes:
+      - graphdb_data:/fuseki
+    restart: always
 
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: hqc-system-backend-prod
     environment:
-      - DATABASE_URL=postgresql://hqcsystem:${POSTGRES_PASSWORD}@postgres:5432/hqc_system_db
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_USER=${POSTGRES_USER:-hqcsystem}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-hqc_system_db}
       - MONGODB_URL=mongodb://mongodb:27017
-      - REDIS_URL=redis://redis:6379
-    ports:
-      - "8000:8000"
+      - REDIS_HOST=redis
+      - GRAPHDB_URL=http://graphdb:3030
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - AQICN_API_KEY=${AQICN_API_KEY}
+      - TOMTOM_API_KEY=${TOMTOM_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./backend/alembic:/app/alembic
     depends_on:
       - postgres
       - mongodb
       - redis
+      - graphdb
+    restart: always
 
   web:
-    build: ./web-dashboard
-    ports:
-      - "80:80"
+    build: 
+      context: ./web-dashboard
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=https://littlefish.website/api/v1
+        - NEXT_PUBLIC_TOMTOM_API_KEY=${TOMTOM_API_KEY}
+    container_name: hqc-system-dashboard-prod
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=${API_BASE_URL}
     depends_on:
       - backend
+    restart: always
+
+  web-app:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+      args:
+        - EXPO_PUBLIC_API_BASE_URL=https://app.littlefish.website/api/v1
+        - EXPO_PUBLIC_OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+        - EXPO_PUBLIC_TOMTOM_API_KEY=${TOMTOM_API_KEY}
+    container_name: hqc-system-app-prod
+    environment:
+      - EXPO_PUBLIC_API_BASE_URL=${API_BASE_URL}
+    restart: always
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: hqc-system-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - web
+      - web-app
+      - backend
+      - graphdb
+    restart: always
 
 volumes:
   postgres_data:
   mongodb_data:
+  graphdb_data:

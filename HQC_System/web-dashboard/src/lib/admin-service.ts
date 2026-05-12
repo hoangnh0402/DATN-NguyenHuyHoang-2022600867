@@ -159,7 +159,7 @@ class AdminService {
     // but better to just use apiClient if I add a 'request' method.
     
     // I'll keep this one slightly more manual but use the base URL from env
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+    const API_BASE_URL = '/api/v1';
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     
     const axios = (await import('axios')).default;

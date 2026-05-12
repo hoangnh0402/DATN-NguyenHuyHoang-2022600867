@@ -607,7 +607,7 @@ export const authApi = {
     formData.append('password', password);
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1'}/auth/login`,
+      `/api/v1/auth/login`,
       {
         method: 'POST',
         headers: {
@@ -671,9 +671,7 @@ export const userApi = {
 
 export const healthApi = {
   check: async (): Promise<{ status: string; version: string }> => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:8000'}/health`
-    );
+    const response = await fetch('/health');
     return response.json();
   },
 };

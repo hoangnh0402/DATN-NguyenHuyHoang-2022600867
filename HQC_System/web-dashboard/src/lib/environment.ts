@@ -23,14 +23,14 @@ const ENV_CONFIGS: Record<Environment, Omit<EnvironmentConfig, 'environment'>> =
     wsUrl: 'ws://localhost:8000',
   },
   staging: {
-    backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://staging-api.hqcsystem.vn',
-    fusekiUrl: process.env.NEXT_PUBLIC_FUSEKI_URL || 'http://localhost:7200',
-    wsUrl: process.env.NEXT_PUBLIC_WS_URL || 'wss://staging-api.hqcsystem.vn',
+    backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || '/api',
+    fusekiUrl: process.env.NEXT_PUBLIC_FUSEKI_URL || '/fuseki',
+    wsUrl: process.env.NEXT_PUBLIC_WS_URL || '/ws',
   },
   production: {
-    backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.hqcsystem.vn',
-    fusekiUrl: process.env.NEXT_PUBLIC_FUSEKI_URL || 'https://fuseki.hqcsystem.vn',
-    wsUrl: process.env.NEXT_PUBLIC_WS_URL || 'wss://api.hqcsystem.vn',
+    backendUrl: '/api',
+    fusekiUrl: '/fuseki',
+    wsUrl: '/ws',
   },
 };
 
@@ -56,6 +56,8 @@ export function detectEnvironment(): Environment {
   if (
     hostname === 'hqcsystem.vn' ||
     hostname.endsWith('.hqcsystem.vn') ||
+    hostname === 'littlefish.website' ||
+    hostname.endsWith('.littlefish.website') ||
     hostname.endsWith('.netlify.app') ||
     hostname.endsWith('.vercel.app') ||
     // Cloudflare tunnel domains

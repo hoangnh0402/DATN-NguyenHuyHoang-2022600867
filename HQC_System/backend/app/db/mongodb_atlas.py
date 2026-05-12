@@ -19,27 +19,31 @@ class MongoDBAtlas:
         self.db = None
     
     async def connect(self):
-        """Connect to MongoDB Atlas"""
+        """Connect to MongoDB Atlas (or fallback to local MongoDB)"""
         try:
-            if not settings.MONGODB_ATLAS_URI:
-                print("⚠️ MONGODB_ATLAS_URI is not configured, skipping Atlas connection")
+            uri = settings.MONGODB_ATLAS_URI or settings.MONGODB_URL
+            db_name = settings.MONGODB_ATLAS_DB
+            
+            if not uri:
+                print("No MongoDB URI configured, skipping connection")
                 return
             
-            self.client = AsyncIOMotorClient(settings.MONGODB_ATLAS_URI)
-            self.db = self.client[settings.MONGODB_ATLAS_DB]
+            self.client = AsyncIOMotorClient(uri)
+            self.db = self.client[db_name]
             
             # Test connection
             await self.client.admin.command('ping')
-            print(f"✅ Connected to MongoDB Atlas: {settings.MONGODB_ATLAS_DB}")
+            source = "Atlas" if settings.MONGODB_ATLAS_URI else "Local Fallback"
+            print(f"Connected to MongoDB ({source}): {db_name}")
         except Exception as e:
-            print(f"❌ FAILED to connect to MongoDB Atlas: {e}")
-            print("⚠️ Backend will continue running but Atlas operations will fail.")
+            print(f"FAILED to connect to MongoDB: {e}")
+            print("Backend will continue running but app features may fail.")
     
     async def close(self):
         """Close MongoDB Atlas connection"""
         if self.client:
             self.client.close()
-            print("✅ Closed MongoDB Atlas connection")
+            print("Closed MongoDB Atlas connection")
     
     def get_database(self) -> AsyncIOMotorDatabase:
         """Get database instance"""

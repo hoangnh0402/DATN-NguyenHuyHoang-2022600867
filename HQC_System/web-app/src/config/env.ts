@@ -14,7 +14,28 @@ const getRawApiBaseUrl = (): string => {
   const fromExpoConfig = (Constants.expoConfig?.extra as any)?.apiBaseUrl;
   const fromProcessEnv = typeof process !== 'undefined' ? process.env?.EXPO_PUBLIC_API_BASE_URL : undefined;
   
-  const result = fromExpoConfig || fromProcessEnv || 'http://localhost:8000/api/v1';
+  let result = fromExpoConfig || fromProcessEnv;
+
+  // Trên web production: ưu tiên gọi cùng origin qua reverse proxy (/api/v1)
+  // để tránh hardcode domain và tránh lỗi mixed-content/CORS.
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const isLocalHost =
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.');
+
+    if (!isLocalHost) {
+      console.log('[ENV] Non-local web host detected, using relative API path');
+      return '/api/v1';
+    }
+  }
+  
+  // Fallback về localhost cho development
+  if (!result) {
+    result = 'http://localhost:8000/api/v1';
+  }
   
   // Debug log - sẽ hiển thị trong browser console
   console.log('[ENV] API URL sources:', {

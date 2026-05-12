@@ -1,0 +1,28 @@
+# Stage 1: Build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+# Build for web using expo
+RUN chmod +x node_modules/.bin/expo
+# Pass build arguments to environment variables
+ARG EXPO_PUBLIC_API_BASE_URL
+ARG EXPO_PUBLIC_OPENWEATHER_API_KEY
+ARG EXPO_PUBLIC_TOMTOM_API_KEY
+ARG EXPO_PUBLIC_MONGODB_URI
+ARG EXPO_PUBLIC_MONGODB_DB_NAME
+
+ENV EXPO_PUBLIC_API_BASE_URL=$EXPO_PUBLIC_API_BASE_URL
+ENV EXPO_PUBLIC_OPENWEATHER_API_KEY=$EXPO_PUBLIC_OPENWEATHER_API_KEY
+ENV EXPO_PUBLIC_TOMTOM_API_KEY=$EXPO_PUBLIC_TOMTOM_API_KEY
+ENV EXPO_PUBLIC_MONGODB_URI=$EXPO_PUBLIC_MONGODB_URI
+ENV EXPO_PUBLIC_MONGODB_DB_NAME=$EXPO_PUBLIC_MONGODB_DB_NAME
+
+RUN npm run build:web
+
+# Stage 2: Serve with Nginx
+FROM nginx:stable-alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

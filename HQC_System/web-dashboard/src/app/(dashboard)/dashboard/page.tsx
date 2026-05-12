@@ -188,7 +188,7 @@ export default function DashboardPage() {
         .catch(() => setApiStatus('offline')),
 
       // 2. App Reports
-      fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1'}/app/reports/stats/summary`)
+      fetch(`/api/v1/app/reports/stats/summary`)
         .then(res => res.json())
         .then(data => {
           if (data.success && data.data) {
