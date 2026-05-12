@@ -1,0 +1,23 @@
+{
+  "id": "roadmap",
+  "title": "7. Lộ Trình Phát Triển (Development Roadmap)",
+  "description": "Lộ trình phát triển của SmartCity-Platform được chia thành các giai đoạn ngắn, thực tế, tập trung vào việc hoàn thành sản phẩm MVP (Sản phẩm Khả dụng Tối thiểu) cho cuộc thi PMNM 2025, đồng thời đặt nền móng cho sự phát triển bền vững sau này.",
+  "source": "@site/overview-docs/roadmap.md",
+  "sourceDirName": ".",
+  "slug": "/roadmap",
+  "permalink": "/SmartCity-Platform/overview/roadmap",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 7,
+  "frontMatter": {
+    "sidebar_position": 7,
+    "title": "7. Lộ Trình Phát Triển (Development Roadmap)"
+  },
+  "sidebar": "overviewSidebar",
+  "previous": {
+    "title": "Edge Storage Management",
+    "permalink": "/SmartCity-Platform/overview/edge-storage-management"
+  }
+}

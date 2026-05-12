@@ -1,0 +1,181 @@
+{
+  "/SmartCity-Platform/markdown-page-2e0": {
+    "__comp": "1f391b9e",
+    "__context": {
+      "plugin": "a7456010"
+    },
+    "content": "393be207"
+  },
+  "/SmartCity-Platform/backend-278": {
+    "__comp": "5e95c892",
+    "__context": {
+      "plugin": "a94c7279"
+    }
+  },
+  "/SmartCity-Platform/backend-fe1": {
+    "__comp": "a7bd4aaa",
+    "__props": "f2548e2f"
+  },
+  "/SmartCity-Platform/backend-adc": {
+    "__comp": "a94703ab"
+  },
+  "/SmartCity-Platform/backend/api-reference-b88": {
+    "__comp": "17896441",
+    "content": "90dd598e"
+  },
+  "/SmartCity-Platform/backend/configuration-e78": {
+    "__comp": "17896441",
+    "content": "fa3d2113"
+  },
+  "/SmartCity-Platform/backend/data-model-f7a": {
+    "__comp": "17896441",
+    "content": "958d6385"
+  },
+  "/SmartCity-Platform/backend/intro-79a": {
+    "__comp": "17896441",
+    "content": "fb503d3d"
+  },
+  "/SmartCity-Platform/frontend-ef5": {
+    "__comp": "5e95c892",
+    "__context": {
+      "plugin": "0def41b4"
+    }
+  },
+  "/SmartCity-Platform/frontend-649": {
+    "__comp": "a7bd4aaa",
+    "__props": "584425aa"
+  },
+  "/SmartCity-Platform/frontend-a44": {
+    "__comp": "a94703ab"
+  },
+  "/SmartCity-Platform/frontend/Công nghệ sử dụng/nuxt-561": {
+    "__comp": "17896441",
+    "content": "88c5ba73"
+  },
+  "/SmartCity-Platform/frontend/Công nghệ sử dụng/nuxt-ui-icon-04b": {
+    "__comp": "17896441",
+    "content": "a76d802d"
+  },
+  "/SmartCity-Platform/frontend/Công nghệ sử dụng/pinia-d08": {
+    "__comp": "17896441",
+    "content": "7e290928"
+  },
+  "/SmartCity-Platform/frontend/Công nghệ sử dụng/prettier-078": {
+    "__comp": "17896441",
+    "content": "e6576b54"
+  },
+  "/SmartCity-Platform/frontend/Công nghệ sử dụng/tailwind-c08": {
+    "__comp": "17896441",
+    "content": "262a8418"
+  },
+  "/SmartCity-Platform/frontend/Công nghệ sử dụng/typescript-891": {
+    "__comp": "17896441",
+    "content": "79bb22bf"
+  },
+  "/SmartCity-Platform/frontend/Công nghệ sử dụng/vue-af4": {
+    "__comp": "17896441",
+    "content": "c876780b"
+  },
+  "/SmartCity-Platform/frontend/Công nghệ sử dụng/vueuse-e95": {
+    "__comp": "17896441",
+    "content": "1e50ac86"
+  },
+  "/SmartCity-Platform/frontend/edge-storage-ui-2fc": {
+    "__comp": "17896441",
+    "content": "f1223863"
+  },
+  "/SmartCity-Platform/frontend/intro-f73": {
+    "__comp": "17896441",
+    "content": "1e31fed0"
+  },
+  "/SmartCity-Platform/infrastructure-d21": {
+    "__comp": "5e95c892",
+    "__context": {
+      "plugin": "e0ea86d0"
+    }
+  },
+  "/SmartCity-Platform/infrastructure-78c": {
+    "__comp": "a7bd4aaa",
+    "__props": "ec35aa33"
+  },
+  "/SmartCity-Platform/infrastructure-98f": {
+    "__comp": "a94703ab"
+  },
+  "/SmartCity-Platform/infrastructure/docker-365": {
+    "__comp": "17896441",
+    "content": "ea1cf3ac"
+  },
+  "/SmartCity-Platform/infrastructure/intro-194": {
+    "__comp": "17896441",
+    "content": "6506bbd4"
+  },
+  "/SmartCity-Platform/ml-ai-043": {
+    "__comp": "5e95c892",
+    "__context": {
+      "plugin": "79997676"
+    }
+  },
+  "/SmartCity-Platform/ml-ai-a95": {
+    "__comp": "a7bd4aaa",
+    "__props": "2350b6cc"
+  },
+  "/SmartCity-Platform/ml-ai-f62": {
+    "__comp": "a94703ab"
+  },
+  "/SmartCity-Platform/ml-ai/intro-fc7": {
+    "__comp": "17896441",
+    "content": "1af13f05"
+  },
+  "/SmartCity-Platform/overview-354": {
+    "__comp": "5e95c892",
+    "__context": {
+      "plugin": "b3f7df9b"
+    }
+  },
+  "/SmartCity-Platform/overview-fcc": {
+    "__comp": "a7bd4aaa",
+    "__props": "63285771"
+  },
+  "/SmartCity-Platform/overview-bdf": {
+    "__comp": "a94703ab"
+  },
+  "/SmartCity-Platform/overview/architecture-a70": {
+    "__comp": "17896441",
+    "content": "b72b9da3"
+  },
+  "/SmartCity-Platform/overview/edge-storage-management-710": {
+    "__comp": "17896441",
+    "content": "12eefcf8"
+  },
+  "/SmartCity-Platform/overview/functional-requirements-1b6": {
+    "__comp": "17896441",
+    "content": "d758d97d"
+  },
+  "/SmartCity-Platform/overview/functions-f3b": {
+    "__comp": "17896441",
+    "content": "72690d64"
+  },
+  "/SmartCity-Platform/overview/intro-c9e": {
+    "__comp": "17896441",
+    "content": "bb265098"
+  },
+  "/SmartCity-Platform/overview/non-functional-requirements-94f": {
+    "__comp": "17896441",
+    "content": "92a6bb5f"
+  },
+  "/SmartCity-Platform/overview/roadmap-db3": {
+    "__comp": "17896441",
+    "content": "023a76b9"
+  },
+  "/SmartCity-Platform/overview/system-description-73d": {
+    "__comp": "17896441",
+    "content": "09b994cf"
+  },
+  "/SmartCity-Platform/-8c8": {
+    "__comp": "1df93b7f",
+    "__context": {
+      "plugin": "a7456010"
+    },
+    "config": "5e9f5e1a"
+  }
+}

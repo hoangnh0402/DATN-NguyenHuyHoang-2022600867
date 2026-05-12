@@ -1,0 +1,27 @@
+{
+  "id": "functional-requirements",
+  "title": "4. Yêu Cầu Chức Năng (Functional Requirements)",
+  "description": "Giới thiệu",
+  "source": "@site/overview-docs/functional-requirements.md",
+  "sourceDirName": ".",
+  "slug": "/functional-requirements",
+  "permalink": "/SmartCity-Platform/overview/functional-requirements",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "sidebar_position": 4,
+    "title": "4. Yêu Cầu Chức Năng (Functional Requirements)"
+  },
+  "sidebar": "overviewSidebar",
+  "previous": {
+    "title": "3. Kiến Trúc Hệ Thống (System Architecture)",
+    "permalink": "/SmartCity-Platform/overview/architecture"
+  },
+  "next": {
+    "title": "5. Yêu Cầu Phi Chức Năng (Non-Functional Requirements)",
+    "permalink": "/SmartCity-Platform/overview/non-functional-requirements"
+  }
+}

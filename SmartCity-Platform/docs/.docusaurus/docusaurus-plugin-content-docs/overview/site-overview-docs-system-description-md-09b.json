@@ -1,0 +1,27 @@
+{
+  "id": "system-description",
+  "title": "2. Mô Tả Hệ Thống (Overall Description)",
+  "description": "2.1 Product Perspective (Vị trí Sản phẩm)",
+  "source": "@site/overview-docs/system-description.md",
+  "sourceDirName": ".",
+  "slug": "/system-description",
+  "permalink": "/SmartCity-Platform/overview/system-description",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2,
+    "title": "2. Mô Tả Hệ Thống (Overall Description)"
+  },
+  "sidebar": "overviewSidebar",
+  "previous": {
+    "title": "1. Giới Thiệu (Introduction)",
+    "permalink": "/SmartCity-Platform/overview/intro"
+  },
+  "next": {
+    "title": "3. Kiến Trúc Hệ Thống (System Architecture)",
+    "permalink": "/SmartCity-Platform/overview/architecture"
+  }
+}

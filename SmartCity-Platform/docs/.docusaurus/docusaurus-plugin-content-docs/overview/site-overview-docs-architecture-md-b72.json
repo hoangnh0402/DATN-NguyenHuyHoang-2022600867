@@ -1,0 +1,27 @@
+{
+  "id": "architecture",
+  "title": "3. Kiến Trúc Hệ Thống (System Architecture)",
+  "description": "3.1 Tổng quan Kiến trúc (Architecture Overview)",
+  "source": "@site/overview-docs/architecture.md",
+  "sourceDirName": ".",
+  "slug": "/architecture",
+  "permalink": "/SmartCity-Platform/overview/architecture",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3,
+    "title": "3. Kiến Trúc Hệ Thống (System Architecture)"
+  },
+  "sidebar": "overviewSidebar",
+  "previous": {
+    "title": "2. Mô Tả Hệ Thống (Overall Description)",
+    "permalink": "/SmartCity-Platform/overview/system-description"
+  },
+  "next": {
+    "title": "4. Yêu Cầu Chức Năng (Functional Requirements)",
+    "permalink": "/SmartCity-Platform/overview/functional-requirements"
+  }
+}

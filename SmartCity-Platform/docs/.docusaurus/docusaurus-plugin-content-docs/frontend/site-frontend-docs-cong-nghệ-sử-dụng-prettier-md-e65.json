@@ -1,0 +1,27 @@
+{
+  "id": "Công nghệ sử dụng/prettier",
+  "title": "Prettier",
+  "description": "Prettier là công cụ định dạng mã nguồn giúp code đồng nhất trong toàn bộ dự án.",
+  "source": "@site/frontend-docs/Công nghệ sử dụng/prettier.md",
+  "sourceDirName": "Công nghệ sử dụng",
+  "slug": "/Công nghệ sử dụng/prettier",
+  "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/prettier",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 7,
+  "frontMatter": {
+    "sidebar_position": 7,
+    "title": "Prettier"
+  },
+  "sidebar": "frontendSidebar",
+  "previous": {
+    "title": "TypeScript",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/typescript"
+  },
+  "next": {
+    "title": "Nuxt UI & Nuxt Icon",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/nuxt-ui-icon"
+  }
+}

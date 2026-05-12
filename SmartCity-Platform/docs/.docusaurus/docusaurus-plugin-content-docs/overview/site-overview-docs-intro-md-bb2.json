@@ -1,0 +1,23 @@
+{
+  "id": "intro",
+  "title": "1. Giới Thiệu (Introduction)",
+  "description": "1.1 Mục đích Tài liệu (Purpose)",
+  "source": "@site/overview-docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/SmartCity-Platform/overview/intro",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "1. Giới Thiệu (Introduction)"
+  },
+  "sidebar": "overviewSidebar",
+  "next": {
+    "title": "2. Mô Tả Hệ Thống (Overall Description)",
+    "permalink": "/SmartCity-Platform/overview/system-description"
+  }
+}

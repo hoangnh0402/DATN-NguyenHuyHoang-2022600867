@@ -1,0 +1,27 @@
+{
+  "id": "Công nghệ sử dụng/tailwind",
+  "title": "Tailwind CSS",
+  "description": "Tailwind CSS là framework CSS dạng utility-first, giúp xây dựng giao diện nhanh và thống nhất.",
+  "source": "@site/frontend-docs/Công nghệ sử dụng/tailwind.md",
+  "sourceDirName": "Công nghệ sử dụng",
+  "slug": "/Công nghệ sử dụng/tailwind",
+  "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/tailwind",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5,
+    "title": "Tailwind CSS"
+  },
+  "sidebar": "frontendSidebar",
+  "previous": {
+    "title": "Pinia",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/pinia"
+  },
+  "next": {
+    "title": "TypeScript",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/typescript"
+  }
+}

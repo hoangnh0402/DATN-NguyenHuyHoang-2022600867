@@ -1,0 +1,27 @@
+{
+  "id": "Công nghệ sử dụng/nuxt",
+  "title": "Nuxt 3",
+  "description": "Nuxt 3 là framework chính được sử dụng để xây dựng frontend.",
+  "source": "@site/frontend-docs/Công nghệ sử dụng/nuxt.md",
+  "sourceDirName": "Công nghệ sử dụng",
+  "slug": "/Công nghệ sử dụng/nuxt",
+  "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/nuxt",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "Nuxt 3"
+  },
+  "sidebar": "frontendSidebar",
+  "previous": {
+    "title": "Edge Storage Management UI",
+    "permalink": "/SmartCity-Platform/frontend/edge-storage-ui"
+  },
+  "next": {
+    "title": "Vue 3",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/vue"
+  }
+}

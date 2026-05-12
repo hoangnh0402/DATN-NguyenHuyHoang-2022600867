@@ -1,0 +1,2 @@
+import{c as t,u as o,r as e,f as a}from"../../_/nitro.mjs";import"node:http";import"node:https";import"node:events";import"node:buffer";import"node:fs";import"node:path";import"node:crypto";import"node:url";const r=t(async t=>{const r=o().public.apiBase||"http://localhost:8080",s=await e(t);try{return await $fetch(`${r}/api/nodes`,{method:"POST",body:s})}catch(t){throw console.error("Error creating node:",t),a({statusCode:t.statusCode||500,statusMessage:t.message||"Failed to create node",data:t.data})}});export{r as default};
+//# sourceMappingURL=index.post.mjs.map

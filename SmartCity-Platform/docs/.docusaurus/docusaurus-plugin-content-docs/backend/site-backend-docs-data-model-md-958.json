@@ -1,0 +1,27 @@
+{
+  "id": "data-model",
+  "title": "Data Model",
+  "description": "CityData Entity",
+  "source": "@site/backend-docs/data-model.md",
+  "sourceDirName": ".",
+  "slug": "/data-model",
+  "permalink": "/SmartCity-Platform/backend/data-model",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3,
+    "title": "Data Model"
+  },
+  "sidebar": "backendSidebar",
+  "previous": {
+    "title": "API Reference",
+    "permalink": "/SmartCity-Platform/backend/api-reference"
+  },
+  "next": {
+    "title": "Configuration",
+    "permalink": "/SmartCity-Platform/backend/configuration"
+  }
+}

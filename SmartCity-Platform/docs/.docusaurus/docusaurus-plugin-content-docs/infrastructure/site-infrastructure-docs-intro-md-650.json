@@ -1,0 +1,23 @@
+{
+  "id": "intro",
+  "title": "Luồng Dữ Liệu (Data Flow)",
+  "description": "Đây là luồng dữ liệu (data flow) End-to-End của hệ thống SmartCity-Platform, kết hợp giữa ý tưởng DNS Routing & PULL Model (Tiêu chí 7) và yêu cầu NGSI-LD (Tiêu chí Kỹ thuật).",
+  "source": "@site/infrastructure-docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/SmartCity-Platform/infrastructure/intro",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2,
+    "title": "Luồng Dữ Liệu (Data Flow)"
+  },
+  "sidebar": "infraSidebar",
+  "previous": {
+    "title": "Docker Deployment",
+    "permalink": "/SmartCity-Platform/infrastructure/docker"
+  }
+}

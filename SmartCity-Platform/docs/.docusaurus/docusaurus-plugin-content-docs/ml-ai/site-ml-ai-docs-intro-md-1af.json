@@ -1,0 +1,19 @@
+{
+  "id": "intro",
+  "title": "Giới Thiệu ML/AI",
+  "description": "1. Tổng Quan",
+  "source": "@site/ml-ai-docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/SmartCity-Platform/ml-ai/intro",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "Giới Thiệu ML/AI"
+  },
+  "sidebar": "mlAiSidebar"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "non-functional-requirements",
+  "title": "5. Yêu Cầu Phi Chức Năng (Non-Functional Requirements)",
+  "description": "Giới thiệu",
+  "source": "@site/overview-docs/non-functional-requirements.md",
+  "sourceDirName": ".",
+  "slug": "/non-functional-requirements",
+  "permalink": "/SmartCity-Platform/overview/non-functional-requirements",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5,
+    "title": "5. Yêu Cầu Phi Chức Năng (Non-Functional Requirements)"
+  },
+  "sidebar": "overviewSidebar",
+  "previous": {
+    "title": "4. Yêu Cầu Chức Năng (Functional Requirements)",
+    "permalink": "/SmartCity-Platform/overview/functional-requirements"
+  },
+  "next": {
+    "title": "6. Chức Năng Chính (Key Features)",
+    "permalink": "/SmartCity-Platform/overview/functions"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "docker",
+  "title": "Docker Deployment",
+  "description": "Tổng quan",
+  "source": "@site/infrastructure-docs/docker.md",
+  "sourceDirName": ".",
+  "slug": "/docker",
+  "permalink": "/SmartCity-Platform/infrastructure/docker",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "Docker Deployment"
+  },
+  "sidebar": "infraSidebar",
+  "next": {
+    "title": "Luồng Dữ Liệu (Data Flow)",
+    "permalink": "/SmartCity-Platform/infrastructure/intro"
+  }
+}

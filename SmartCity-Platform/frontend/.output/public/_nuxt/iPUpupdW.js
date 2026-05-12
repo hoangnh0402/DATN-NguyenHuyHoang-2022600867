@@ -1,0 +1,1 @@
+import{u as i}from"./Ci-_JAUd.js";import{a2 as a,a3 as o}from"./Cjr5YLoF.js";import"./BJ2ClxiI.js";const f=a((e,r)=>{const t=i();if(t.token||t.initialize(),!t.isAuthenticated&&e.path!=="/login"&&e.path!=="/register")return o("/login")});export{f as default};

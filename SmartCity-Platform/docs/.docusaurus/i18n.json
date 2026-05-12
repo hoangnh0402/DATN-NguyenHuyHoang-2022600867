@@ -1,0 +1,20 @@
+{
+  "defaultLocale": "vi",
+  "locales": [
+    "vi"
+  ],
+  "path": "i18n",
+  "currentLocale": "vi",
+  "localeConfigs": {
+    "vi": {
+      "label": "Tiếng Việt",
+      "direction": "ltr",
+      "htmlLang": "vi",
+      "calendar": "gregory",
+      "path": "vi",
+      "translate": false,
+      "url": "https://haui-hit-h2k.github.io",
+      "baseUrl": "/SmartCity-Platform/"
+    }
+  }
+}

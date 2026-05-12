@@ -1,0 +1,27 @@
+{
+  "id": "Công nghệ sử dụng/typescript",
+  "title": "TypeScript",
+  "description": "TypeScript giúp mã nguồn có type rõ ràng, dễ bảo trì và giảm lỗi runtime.",
+  "source": "@site/frontend-docs/Công nghệ sử dụng/typescript.md",
+  "sourceDirName": "Công nghệ sử dụng",
+  "slug": "/Công nghệ sử dụng/typescript",
+  "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/typescript",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "sidebar_position": 6,
+    "title": "TypeScript"
+  },
+  "sidebar": "frontendSidebar",
+  "previous": {
+    "title": "Tailwind CSS",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/tailwind"
+  },
+  "next": {
+    "title": "Prettier",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/prettier"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "Công nghệ sử dụng/vueuse",
+  "title": "VueUse",
+  "description": "VueUse là bộ sưu tập các composition utilities cho Vue 3, giúp viết logic ngắn gọn và hiệu quả hơn.",
+  "source": "@site/frontend-docs/Công nghệ sử dụng/vueuse.md",
+  "sourceDirName": "Công nghệ sử dụng",
+  "slug": "/Công nghệ sử dụng/vueuse",
+  "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/vueuse",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3,
+    "title": "VueUse"
+  },
+  "sidebar": "frontendSidebar",
+  "previous": {
+    "title": "Vue 3",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/vue"
+  },
+  "next": {
+    "title": "Pinia",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/pinia"
+  }
+}

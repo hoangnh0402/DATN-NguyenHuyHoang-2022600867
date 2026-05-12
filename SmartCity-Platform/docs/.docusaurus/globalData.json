@@ -1,0 +1,249 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "overview": {
+      "path": "/SmartCity-Platform/overview",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/SmartCity-Platform/overview",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "architecture",
+              "path": "/SmartCity-Platform/overview/architecture",
+              "sidebar": "overviewSidebar"
+            },
+            {
+              "id": "edge-storage-management",
+              "path": "/SmartCity-Platform/overview/edge-storage-management",
+              "sidebar": "overviewSidebar"
+            },
+            {
+              "id": "functional-requirements",
+              "path": "/SmartCity-Platform/overview/functional-requirements",
+              "sidebar": "overviewSidebar"
+            },
+            {
+              "id": "functions",
+              "path": "/SmartCity-Platform/overview/functions",
+              "sidebar": "overviewSidebar"
+            },
+            {
+              "id": "intro",
+              "path": "/SmartCity-Platform/overview/intro",
+              "sidebar": "overviewSidebar"
+            },
+            {
+              "id": "non-functional-requirements",
+              "path": "/SmartCity-Platform/overview/non-functional-requirements",
+              "sidebar": "overviewSidebar"
+            },
+            {
+              "id": "roadmap",
+              "path": "/SmartCity-Platform/overview/roadmap",
+              "sidebar": "overviewSidebar"
+            },
+            {
+              "id": "system-description",
+              "path": "/SmartCity-Platform/overview/system-description",
+              "sidebar": "overviewSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "overviewSidebar": {
+              "link": {
+                "path": "/SmartCity-Platform/overview/intro",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    },
+    "backend": {
+      "path": "/SmartCity-Platform/backend",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/SmartCity-Platform/backend",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "api-reference",
+              "path": "/SmartCity-Platform/backend/api-reference",
+              "sidebar": "backendSidebar"
+            },
+            {
+              "id": "configuration",
+              "path": "/SmartCity-Platform/backend/configuration",
+              "sidebar": "backendSidebar"
+            },
+            {
+              "id": "data-model",
+              "path": "/SmartCity-Platform/backend/data-model",
+              "sidebar": "backendSidebar"
+            },
+            {
+              "id": "intro",
+              "path": "/SmartCity-Platform/backend/intro",
+              "sidebar": "backendSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "backendSidebar": {
+              "link": {
+                "path": "/SmartCity-Platform/backend/intro",
+                "label": "Giới thiệu"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    },
+    "frontend": {
+      "path": "/SmartCity-Platform/frontend",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/SmartCity-Platform/frontend",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "Công nghệ sử dụng/nuxt",
+              "path": "/SmartCity-Platform/frontend/Công nghệ sử dụng/nuxt",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "Công nghệ sử dụng/nuxt-ui-icon",
+              "path": "/SmartCity-Platform/frontend/Công nghệ sử dụng/nuxt-ui-icon",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "Công nghệ sử dụng/pinia",
+              "path": "/SmartCity-Platform/frontend/Công nghệ sử dụng/pinia",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "Công nghệ sử dụng/prettier",
+              "path": "/SmartCity-Platform/frontend/Công nghệ sử dụng/prettier",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "Công nghệ sử dụng/tailwind",
+              "path": "/SmartCity-Platform/frontend/Công nghệ sử dụng/tailwind",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "Công nghệ sử dụng/typescript",
+              "path": "/SmartCity-Platform/frontend/Công nghệ sử dụng/typescript",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "Công nghệ sử dụng/vue",
+              "path": "/SmartCity-Platform/frontend/Công nghệ sử dụng/vue",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "Công nghệ sử dụng/vueuse",
+              "path": "/SmartCity-Platform/frontend/Công nghệ sử dụng/vueuse",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "edge-storage-ui",
+              "path": "/SmartCity-Platform/frontend/edge-storage-ui",
+              "sidebar": "frontendSidebar"
+            },
+            {
+              "id": "intro",
+              "path": "/SmartCity-Platform/frontend/intro",
+              "sidebar": "frontendSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "frontendSidebar": {
+              "link": {
+                "path": "/SmartCity-Platform/frontend/intro",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    },
+    "ml-ai": {
+      "path": "/SmartCity-Platform/ml-ai",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/SmartCity-Platform/ml-ai",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "intro",
+              "path": "/SmartCity-Platform/ml-ai/intro",
+              "sidebar": "mlAiSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "mlAiSidebar": {
+              "link": {
+                "path": "/SmartCity-Platform/ml-ai/intro",
+                "label": "Giới thiệu ML/AI"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    },
+    "infrastructure": {
+      "path": "/SmartCity-Platform/infrastructure",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/SmartCity-Platform/infrastructure",
+          "mainDocId": "docker",
+          "docs": [
+            {
+              "id": "docker",
+              "path": "/SmartCity-Platform/infrastructure/docker",
+              "sidebar": "infraSidebar"
+            },
+            {
+              "id": "intro",
+              "path": "/SmartCity-Platform/infrastructure/intro",
+              "sidebar": "infraSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "infraSidebar": {
+              "link": {
+                "path": "/SmartCity-Platform/infrastructure/docker",
+                "label": "docker"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

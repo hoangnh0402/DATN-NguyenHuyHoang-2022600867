@@ -1,0 +1,2 @@
+import{c as t,u as o,f as e}from"../../_/nitro.mjs";import"node:http";import"node:https";import"node:events";import"node:buffer";import"node:fs";import"node:path";import"node:crypto";import"node:url";const s=t(async t=>{const s=o().public.apiBase||"http://localhost:8080";try{return await $fetch(`${s}/api/nodes`)}catch(t){throw console.error("Error fetching nodes:",t),e({statusCode:t.statusCode||500,statusMessage:t.message||"Failed to fetch nodes"})}});export{s as default};
+//# sourceMappingURL=index.get.mjs.map

@@ -1,0 +1,27 @@
+{
+  "id": "Công nghệ sử dụng/pinia",
+  "title": "Pinia",
+  "description": "Pinia là hệ thống quản lý state chính thức của Vue 3 (thay thế Vuex).",
+  "source": "@site/frontend-docs/Công nghệ sử dụng/pinia.md",
+  "sourceDirName": "Công nghệ sử dụng",
+  "slug": "/Công nghệ sử dụng/pinia",
+  "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/pinia",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "sidebar_position": 4,
+    "title": "Pinia"
+  },
+  "sidebar": "frontendSidebar",
+  "previous": {
+    "title": "VueUse",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/vueuse"
+  },
+  "next": {
+    "title": "Tailwind CSS",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/tailwind"
+  }
+}

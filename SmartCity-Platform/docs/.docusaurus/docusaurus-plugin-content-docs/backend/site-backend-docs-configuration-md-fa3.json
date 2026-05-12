@@ -1,0 +1,23 @@
+{
+  "id": "configuration",
+  "title": "Configuration",
+  "description": "application.yml Structure",
+  "source": "@site/backend-docs/configuration.md",
+  "sourceDirName": ".",
+  "slug": "/configuration",
+  "permalink": "/SmartCity-Platform/backend/configuration",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "sidebar_position": 4,
+    "title": "Configuration"
+  },
+  "sidebar": "backendSidebar",
+  "previous": {
+    "title": "Data Model",
+    "permalink": "/SmartCity-Platform/backend/data-model"
+  }
+}

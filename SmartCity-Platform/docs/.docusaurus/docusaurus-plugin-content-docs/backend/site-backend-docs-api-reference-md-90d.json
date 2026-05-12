@@ -1,0 +1,27 @@
+{
+  "id": "api-reference",
+  "title": "API Reference",
+  "description": "Base Configuration",
+  "source": "@site/backend-docs/api-reference.md",
+  "sourceDirName": ".",
+  "slug": "/api-reference",
+  "permalink": "/SmartCity-Platform/backend/api-reference",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2,
+    "title": "API Reference"
+  },
+  "sidebar": "backendSidebar",
+  "previous": {
+    "title": "Giới thiệu",
+    "permalink": "/SmartCity-Platform/backend/intro"
+  },
+  "next": {
+    "title": "Data Model",
+    "permalink": "/SmartCity-Platform/backend/data-model"
+  }
+}

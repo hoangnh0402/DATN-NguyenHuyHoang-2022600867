@@ -1,0 +1,23 @@
+{
+  "id": "Công nghệ sử dụng/nuxt-ui-icon",
+  "title": "Nuxt UI & Nuxt Icon",
+  "description": "Hai module mở rộng UI chính thức từ Nuxt Labs, giúp xây dựng giao diện đồng nhất và hiện đại.",
+  "source": "@site/frontend-docs/Công nghệ sử dụng/nuxt-ui-icon.md",
+  "sourceDirName": "Công nghệ sử dụng",
+  "slug": "/Công nghệ sử dụng/nuxt-ui-icon",
+  "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/nuxt-ui-icon",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 10,
+  "frontMatter": {
+    "sidebar_position": 10,
+    "title": "Nuxt UI & Nuxt Icon"
+  },
+  "sidebar": "frontendSidebar",
+  "previous": {
+    "title": "Prettier",
+    "permalink": "/SmartCity-Platform/frontend/Công nghệ sử dụng/prettier"
+  }
+}

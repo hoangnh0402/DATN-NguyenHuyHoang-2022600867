@@ -1,0 +1,27 @@
+{
+  "id": "functions",
+  "title": "6. Chức Năng Chính (Key Features)",
+  "description": "SmartCity-Platform được xây dựng với một bộ tính năng chuyên biệt, tập trung vào việc thu thập, xử lý và cung cấp dữ liệu đô thị thời gian thực một cách tin cậy và hiệu quả.",
+  "source": "@site/overview-docs/functions.md",
+  "sourceDirName": ".",
+  "slug": "/functions",
+  "permalink": "/SmartCity-Platform/overview/functions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "sidebar_position": 6,
+    "title": "6. Chức Năng Chính (Key Features)"
+  },
+  "sidebar": "overviewSidebar",
+  "previous": {
+    "title": "5. Yêu Cầu Phi Chức Năng (Non-Functional Requirements)",
+    "permalink": "/SmartCity-Platform/overview/non-functional-requirements"
+  },
+  "next": {
+    "title": "Edge Storage Management",
+    "permalink": "/SmartCity-Platform/overview/edge-storage-management"
+  }
+}
