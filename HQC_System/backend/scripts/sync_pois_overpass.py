@@ -11,7 +11,11 @@ from sqlalchemy.ext.asyncio import create_async_engine
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.core.config import settings
 
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+OVERPASS_ENDPOINTS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://lz4.overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+]
 
 # Các danh mục cần lấy và mapping sang category/subcategory của hệ thống
 # Format: (OSM_Key, OSM_Value, System_Category, System_Subcategory)
@@ -53,13 +57,30 @@ async def sync_pois():
     print("🌍 Đang bắt đầu đồng bộ dữ liệu POI thực tế từ OpenStreetMap...")
     query = build_overpass_query()
     
-    try:
-        print("  → Gửi yêu cầu tới Overpass API (có thể mất 15-30s)...")
-        response = requests.post(OVERPASS_URL, data={'data': query}, timeout=120)
-        response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        print(f"❌ Lỗi khi tải dữ liệu từ Overpass: {e}")
+    data = None
+    headers = {
+        "User-Agent": "HQC-System-POI-Sync/1.0 (+https://littlefish.website)",
+        "Accept": "application/json",
+    }
+
+    for endpoint in OVERPASS_ENDPOINTS:
+        try:
+            print(f"  → Gửi yêu cầu tới Overpass API: {endpoint} (15-30s)...")
+            response = requests.post(
+                endpoint,
+                data={"data": query},
+                headers=headers,
+                timeout=120,
+            )
+            response.raise_for_status()
+            data = response.json()
+            print(f"  ✓ Thành công với endpoint: {endpoint}")
+            break
+        except Exception as e:
+            print(f"  ✗ Endpoint lỗi: {endpoint} -> {e}")
+
+    if data is None:
+        print("❌ Lỗi khi tải dữ liệu từ tất cả Overpass endpoints.")
         return
 
     elements = data.get('elements', [])

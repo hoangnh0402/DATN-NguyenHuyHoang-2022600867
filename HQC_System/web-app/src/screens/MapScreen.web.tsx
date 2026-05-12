@@ -966,7 +966,11 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
   };
 
   const fetchPoisGeojson = async (cityKey: string) => {
-    const cached = poiCacheRef.current[cityKey];
+    const center = userLocation || (CITIES as any)[cityKey].center;
+    const centerKey = `${center[0].toFixed(3)},${center[1].toFixed(3)}`;
+    const filterKey = poiCategoryFilter || 'all';
+    const cacheKey = `${cityKey}|${filterKey}|${centerKey}`;
+    const cached = poiCacheRef.current[cacheKey];
     if (cached) {
       setPoiGeojson(cached);
       return;
@@ -976,13 +980,10 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
     showStatus('🔄 Đang tải POI (điểm quan tâm)...');
 
     try {
-      // Lấy POI trong bán kính ~2km quanh userLocation (hoặc center city nếu chưa có)
-      const center = userLocation || (CITIES as any)[cityKey].center;
-      const bbox = getBoundingBoxAroundPoint(center, 2);
+      // Tăng bán kính để giảm trường hợp không có dữ liệu POI trong vùng nhỏ
+      const bbox = getBoundingBoxAroundPoint(center, 6);
       const bboxParam = `${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}`;
-      const params = new URLSearchParams();
-      params.set('limit', '300');
-      params.set('bbox', bboxParam);
+      const params = new URLSearchParams({ limit: '300', bbox: bboxParam });
       // Map filter term to category/subcategory when có
       const filterMap: Record<string, { category: string; subcategory?: string }> = {
         atm: { category: 'amenity', subcategory: 'atm' },
@@ -1005,13 +1006,36 @@ const getPoiIcon = (category?: string, subcategory?: string): string => {
         if (f.subcategory) params.set('subcategory', f.subcategory);
       }
 
-      const url = `${API_BASE}/geographic/pois/geojson?${params.toString()}`;
-      const res = await fetch(url);
+      // Request 1: bbox + filter hiện tại
+      let url = `${API_BASE}/geographic/pois/geojson?${params.toString()}`;
+      let res = await fetch(url);
       if (!res.ok) throw new Error(`POIs API error ${res.status}`);
-      const data = await res.json();
-      poiCacheRef.current[cityKey] = data;
+      let data = await res.json();
+      let count = Array.isArray(data?.features) ? data.features.length : 0;
+
+      // Fallback: nếu lọc theo category/subcategory mà trả về rỗng,
+      // thử lại trong cùng bbox nhưng bỏ filter.
+      if (count === 0 && poiCategoryFilter) {
+        const fallbackParams = new URLSearchParams({ limit: '300', bbox: bboxParam });
+        url = `${API_BASE}/geographic/pois/geojson?${fallbackParams.toString()}`;
+        res = await fetch(url);
+        if (!res.ok) throw new Error(`POIs fallback API error ${res.status}`);
+        data = await res.json();
+        count = Array.isArray(data?.features) ? data.features.length : 0;
+      }
+
+      // Fallback 2: vẫn rỗng thì bỏ luôn bbox để lấy dữ liệu chung.
+      if (count === 0) {
+        const fallbackGlobalParams = new URLSearchParams({ limit: '300' });
+        url = `${API_BASE}/geographic/pois/geojson?${fallbackGlobalParams.toString()}`;
+        res = await fetch(url);
+        if (!res.ok) throw new Error(`POIs global fallback API error ${res.status}`);
+        data = await res.json();
+        count = Array.isArray(data?.features) ? data.features.length : 0;
+      }
+
+      poiCacheRef.current[cacheKey] = data;
       setPoiGeojson(data);
-      const count = Array.isArray(data?.features) ? data.features.length : 0;
       showStatus(`Đã tải ${count} điểm POI`, 2000);
     } catch (error) {
       console.error('Error fetching POIs:', error);
